@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Status Pembayaran</title>
+<style>
+  body{font-family:-apple-system,"Segoe UI",sans-serif;background:#f7f8fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+  .box{background:#fff;border-radius:16px;padding:40px;text-align:center;max-width:420px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+  .icon{font-size:64px;display:block;margin-bottom:16px}
+  h1{font-size:22px;margin-bottom:8px;font-weight:800}
+  p{color:#57606a;font-size:14px;line-height:1.6}
+  .btn{display:inline-block;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-top:20px;background:#3b82d4;color:#fff}
+  .success h1{color:#16a34a}
+  .error h1{color:#dc2626}
+  .pending h1{color:#d97706}
+</style>
+</head>
+<body>
+<div class="box" id="box">
+  <span class="icon" id="icon">⏳</span>
+  <h1 id="title">Memproses...</h1>
+  <p id="msg">Mohon tunggu sebentar.</p>
+  <a href="/" class="btn">Kembali ke Aplikasi</a>
+</div>
+<script>
+const path = location.pathname.split('/').pop();
+const states = {
+  finish:  { cls:'success', icon:'✅', title:'Pembayaran Berhasil!', msg:'Pembayaran Anda telah berhasil diproses. Status invoice akan diperbarui secara otomatis melalui verifikasi webhook Midtrans.' },
+  error:   { cls:'error',   icon:'❌', title:'Pembayaran Gagal',     msg:'Terjadi kesalahan dalam proses pembayaran. Silakan coba kembali atau hubungi kami.' },
+  pending: { cls:'pending', icon:'⏳', title:'Pembayaran Menunggu',  msg:'Pembayaran Anda sedang diproses. Status akan diperbarui otomatis setelah pembayaran dikonfirmasi oleh bank/provider.' },
+};
+const s = states[path] || states.pending;
+document.getElementById('box').className = 'box ' + s.cls;
+document.getElementById('icon').textContent = s.icon;
+document.getElementById('title').textContent = s.title;
+document.getElementById('msg').textContent = s.msg;
+</script>
+</body>
+</html>
+

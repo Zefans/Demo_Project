@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hasil Pembayaran — FinancePhoto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="background:linear-gradient(135deg,#1e3a8a,#2563eb,#3b82f6);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:40px;max-width:460px;width:100%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.2)">
+    <div id="result-icon" style="font-size:56px;margin-bottom:16px">⏳</div>
+    <h1 id="result-title" style="font-size:22px;font-weight:700;margin-bottom:8px">Memproses...</h1>
+    <p id="result-message" style="color:#64748b;font-size:14px;margin-bottom:24px">Mohon tunggu, kami sedang memverifikasi pembayaran Anda.</p>
+    <div id="result-details" style="background:#f8fafc;border-radius:8px;padding:16px;text-align:left;margin-bottom:24px;display:none">
+      <div id="result-invoice-code" style="font-size:12px;color:#64748b;margin-bottom:4px"></div>
+      <div id="result-amount" style="font-size:18px;font-weight:700;color:#1f2328"></div>
+    </div>
+    <a href="/" class="btn btn-primary" style="text-decoration:none;display:inline-block">Kembali ke Dashboard</a>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const invoiceId = params.get('invoice_id');
+
+    const icons = { success: '✅', pending: '⏳', error: '❌' };
+    const titles = { success: 'Pembayaran Berhasil!', pending: 'Pembayaran Menunggu Konfirmasi', error: 'Pembayaran Gagal' };
+    const messages = {
+      success: 'Terima kasih! Pembayaran Anda telah berhasil dan akan segera diproses.',
+      pending: 'Pembayaran Anda sedang diverifikasi. Status akan diperbarui otomatis setelah konfirmasi dari bank.',
+      error: 'Maaf, terjadi kesalahan dalam proses pembayaran. Silakan coba lagi atau hubungi kami.'
+    };
+
+    const s = status || 'pending';
+    document.getElementById('result-icon').textContent = icons[s] || '⏳';
+    document.getElementById('result-title').textContent = titles[s] || 'Memproses...';
+    document.getElementById('result-message').textContent = messages[s] || '';
+
+    // Fetch invoice details
+    if (invoiceId) {
+      fetch('/api/invoices/' + invoiceId, { credentials: 'include' })
+        .then(r => r.json())
+        .then(inv => {
+          if (inv.invoice_code) {
+            document.getElementById('result-details').style.display = 'block';
+            document.getElementById('result-invoice-code').textContent = 'Invoice: ' + inv.invoice_code;
+            document.getElementById('result-amount').textContent = 'Rp ' + Number(inv.amount).toLocaleString('id-ID');
+
+            // Update icon/title based on actual invoice status
+            if (inv.status === 'paid') {
+              document.getElementById('result-icon').textContent = '✅';
+              document.getElementById('result-title').textContent = 'Pembayaran Berhasil!';
+              document.getElementById('result-message').textContent = messages.success;
+            } else if (inv.status === 'pending') {
+              document.getElementById('result-icon').textContent = '⏳';
+              document.getElementById('result-title').textContent = titles.pending;
+              document.getElementById('result-message').textContent = messages.pending;
+            } else if (['failed','cancelled','expired'].includes(inv.status)) {
+              document.getElementById('result-icon').textContent = '❌';
+              document.getElementById('result-title').textContent = 'Pembayaran Tidak Berhasil';
+              document.getElementById('result-message').textContent = messages.error;
+            }
+          }
+        }).catch(() => {});
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Photography Finance Manager</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>"/>
+<style>
+/* ── Reset & Variables ──────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--border:#e5e7eb;
+  --text:#1f2328;--muted:#57606a;--accent:#3b82d4;--accent-dark:#2563eb;
+  --success:#16a34a;--warning:#d97706;--danger:#dc2626;--purple:#7c5cd8;
+  --sidebar-w:240px;--header-h:60px;
+  --font:-apple-system,"Segoe UI",system-ui,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit;font-size:14px}
+
+/* ── Login ─────────────────────────────────────────────────── */
+#login-page{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background:linear-gradient(135deg,#1e3a5f 0%,#2d5986 50%,#1e3a5f 100%);
+}
+.login-box{
+  background:var(--surface);border-radius:16px;padding:40px;width:360px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo .icon{font-size:48px;display:block}
+.login-logo h1{font-size:20px;font-weight:700;margin-top:8px;color:var(--text)}
+.login-logo p{font-size:12px;color:var(--muted)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;
+  background:var(--bg);color:var(--text);transition:border-color .2s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  outline:none;border-color:var(--accent);background:var(--surface);
+}
+.form-group textarea{resize:vertical;min-height:80px}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:10px 18px;
+  border:none;border-radius:8px;font-size:13px;font-weight:600;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#15803d}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#b91c1c}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-warning:hover{background:#b45309}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-secondary:hover{background:#d1d5db}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn-outline:hover{background:var(--accent);color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+.btn-icon{padding:8px;border-radius:6px;background:transparent;border:none;color:var(--muted);font-size:16px}
+.btn-icon:hover{background:var(--bg);color:var(--text)}
+.alert{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px}
+.alert-error{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}
+.alert-success{background:#f0fdf4;color:var(--success);border:1px solid #bbf7d0}
+.alert-warning{background:#fffbeb;color:var(--warning);border:1px solid #fde68a}
+.alert-info{background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe}
+
+/* ── App Layout ─────────────────────────────────────────────── */
+#app{display:flex;min-height:100vh}
+#sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);background:#1e2d3d;
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;
+  z-index:100;transition:transform .3s;
+}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid #2d3f52}
+.sidebar-logo .logo-icon{font-size:28px}
+.sidebar-logo h2{color:#fff;font-size:14px;font-weight:700;margin-top:6px;line-height:1.3}
+.sidebar-logo p{color:#64748b;font-size:11px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px 0}
+.nav-section{padding:8px 16px 4px;color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 20px;
+  color:#94a3b8;font-size:13px;font-weight:500;transition:all .15s;cursor:pointer;
+  border-left:3px solid transparent;
+}
+.nav-item:hover{background:#2d3f52;color:#fff}
+.nav-item.active{background:#2d3f52;color:#fff;border-left-color:var(--accent)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid #2d3f52}
+.sidebar-user{color:#94a3b8;font-size:12px}
+.sidebar-user strong{color:#fff;display:block}
+#main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{
+  height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+  position:sticky;top:0;z-index:90;
+}
+.topbar-title{font-size:18px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.content{padding:24px;flex:1}
+
+/* ── Cards & Grid ───────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:20px;position:relative;overflow:hidden;
+}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.stat-card.income::before{background:var(--success)}
+.stat-card.expense::before{background:var(--danger)}
+.stat-card.balance::before{background:var(--purple)}
+.stat-card.pending::before{background:var(--warning)}
+.stat-icon{font-size:28px;margin-bottom:8px;display:block}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-size:22px;font-weight:800;margin-top:4px;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+
+/* ── Table ──────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--muted);
+   text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:hover td{background:#f9fafb}
+tr:last-child td{border-bottom:none}
+
+/* ── Badges ─────────────────────────────────────────────────── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-success{background:#dcfce7;color:var(--success)}
+.badge-danger{background:#fef2f2;color:var(--danger)}
+.badge-warning{background:#fef3c7;color:var(--warning)}
+.badge-info{background:#dbeafe;color:var(--accent)}
+.badge-muted{background:#f1f5f9;color:var(--muted)}
+.badge-purple{background:#f3e8ff;color:var(--purple)}
+
+/* ── Modal ──────────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.modal{
+  background:var(--surface);border-radius:16px;padding:28px;width:100%;max-width:560px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,.25);
+}
+.modal-lg{max-width:760px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:4px;border-radius:6px}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ── Chart ──────────────────────────────────────────────────── */
+.chart-container{position:relative;height:260px}
+canvas{width:100%!important}
+
+/* ── Invoice Print ──────────────────────────────────────────── */
+.invoice-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;max-width:680px;margin:0 auto}
+.invoice-header{display:flex;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.invoice-from h3{font-size:18px;font-weight:800;color:var(--accent)}
+.invoice-from p{font-size:12px;color:var(--muted)}
+.invoice-items table{width:100%}
+.invoice-total{text-align:right;margin-top:16px}
+.invoice-total .total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+.invoice-total .grand{font-weight:800;font-size:16px;border-top:2px solid var(--border);padding-top:8px}
+
+/* ── Misc ───────────────────────────────────────────────────── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:20px;font-weight:700}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filters select,.filters input{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.empty{text-align:center;padding:48px;color:var(--muted)}
+.empty .icon{font-size:40px;display:block;margin-bottom:12px}
+.text-right{text-align:right}
+.text-center{text-align:center}
+.text-success{color:var(--success)}
+.text-danger{color:var(--danger)}
+.text-muted{color:var(--muted)}
+.font-bold{font-weight:700}
+.mt-16{margin-top:16px}
+.hidden{display:none!important}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.tag{display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--muted)}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+.toast{
+  position:fixed;bottom:24px;right:24px;background:#1e2d3d;color:#fff;
+  padding:12px 20px;border-radius:10px;font-size:13px;z-index:1000;
+  transform:translateY(100px);opacity:0;transition:all .3s;max-width:340px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+#menu-toggle{display:none;background:none;border:none;font-size:22px;padding:8px;cursor:pointer}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:768px){
+  :root{--sidebar-w:0px}
+  #sidebar{transform:translateX(-240px);width:240px}
+  #sidebar.open{transform:translateX(0)}
+  #main{margin-left:0}
+  #menu-toggle{display:block}
+  .grid-2,.grid-3,.form-row{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .content{padding:16px}
+  .modal{padding:20px}
+}
+@media print{
+  #sidebar,#main .topbar,.btn{display:none!important}
+  #main{margin-left:0}
+  .content{padding:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ──────────────────────────────────────────────── -->
+<div id="login-page" class="hidden">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="icon">📷</span>
+      <h1>Photography Finance</h1>
+      <p>Manager Keuangan Studio</p>
+    </div>
+    <div id="login-alert"></div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="admin" autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Masuk →</button>
+    <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted)">
+      Photography & Videography Finance Manager · Paket B
+    </p>
+  </div>
+</div>
+
+<!-- ── APP ────────────────────────────────────────────────── -->
+<div id="app" class="hidden">
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">📷</span>
+      <h2>Photo Finance<br>Manager</h2>
+      <p>Paket B</p>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Utama</div>
+      <div class="nav-item active" onclick="navigate('dashboard')"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="navigate('projects')"><span class="icon">🎬</span> Proyek</div>
+      <div class="nav-item" onclick="navigate('clients')"><span class="icon">👥</span> Klien</div>
+      <div class="nav-section">Keuangan</div>
+      <div class="nav-item" onclick="navigate('invoices')"><span class="icon">🧾</span> Invoice</div>
+      <div class="nav-item" onclick="navigate('transactions')"><span class="icon">💳</span> Transaksi</div>
+      <div class="nav-section">Laporan</div>
+      <div class="nav-item" onclick="navigate('reports')"><span class="icon">📈</span> Laporan Bulanan</div>
+      <div class="nav-item" onclick="navigate('settings')"><span class="icon">⚙️</span> Pengaturan</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <strong id="sidebar-username">admin</strong>
+        Administrator
+      </div>
+      <button class="btn btn-sm btn-secondary mt-16" onclick="doLogout()" style="width:100%">Keluar</button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div id="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <span class="topbar-title" id="page-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <span id="topbar-date" style="font-size:12px;color:var(--muted)"></span>
+        <button class="btn btn-sm btn-primary" onclick="navigate('invoices');openModal('modal-invoice')">+ Invoice</button>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- ── MODALS ──────────────────────────────────────────────── -->
+<!-- Client Modal -->
+<div class="modal-overlay hidden" id="modal-client">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-client-title">Tambah Klien</span>
+      <button class="modal-close" onclick="closeModal('modal-client')">✕</button>
+    </div>
+    <div class="form-group"><label>Nama *</label><input type="text" id="f-client-name" placeholder="Nama lengkap klien"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Email</label><input type="email" id="f-client-email" placeholder="demo@example.invalid"/></div>
+      <div class="form-group"><label>Telepon</label><input type="text" id="f-client-phone" placeholder="08xx-xxxx-xxxx"/></div>
+    </div>
+    <div class="form-group"><label>Alamat</label><textarea id="f-client-address" rows="2" placeholder="Alamat lengkap"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-client')">Batal</button>
+      <button class="btn btn-primary" onclick="saveClient()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Modal -->
+<div class="modal-overlay hidden" id="modal-project">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-project-title">Tambah Proyek</span>
+      <button class="modal-close" onclick="closeModal('modal-project')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Klien *</label>
+        <select id="f-project-client"><option value="">-- Pilih Klien --</option></select>
+      </div>
+      <div class="form-group">
+        <label>Jenis *</label>
+        <select id="f-project-type">
+          <option value="photography">Photography</option>
+          <option value="videography">Videography</option>
+          <option value="both">Photography + Videography</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Judul Proyek *</label><input type="text" id="f-project-title" placeholder="Wedding Budi & Ani – Bandung"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Tanggal Proyek</label><input type="date" id="f-project-date"/></div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-project-status">
+          <option value="pending">Pending</option>
+          <option value="dp_paid">DP Lunas</option>
+          <option value="in_progress">Dalam Proses</option>
+          <option value="completed">Selesai</option>
+          <option value="cancelled">Dibatalkan</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Nilai Total (Rp) *</label><input type="number" id="f-project-total" placeholder="5000000" oninput="calcRemaining()"/></div>
+      <div class="form-group"><label>DP (Rp)</label><input type="number" id="f-project-dp" placeholder="2500000" oninput="calcRemaining()"/></div>
+    </div>
+    <div class="form-group"><label>Deskripsi</label><textarea id="f-project-desc" placeholder="Detail layanan yang disepakati..."></textarea></div>
+    <div class="form-group"><label>Catatan Internal</label><textarea id="f-project-notes" rows="2" placeholder="Catatan internal..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-project')">Batal</button>
+      <button class="btn btn-primary" onclick="saveProject()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal-overlay hidden" id="modal-invoice">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Buat Invoice</span>
+      <button class="modal-close" onclick="closeModal('modal-invoice')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Proyek *</label>
+      <select id="f-inv-project" onchange="onInvProjectChange()"><option value="">-- Pilih Proyek --</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Jenis *</label>
+        <select id="f-inv-type" onchange="onInvTypeChange()">
+          <option value="dp">Down Payment (DP)</option>
+          <option value="remaining">Pelunasan</option>
+          <option value="full">Pembayaran Penuh</option>
+          <option value="custom">Jumlah Custom</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nominal (Rp) *</label><input type="number" id="f-inv-amount" placeholder="2500000"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Jatuh Tempo</label><input type="date" id="f-inv-due"/></div>
+    </div>
+    <div class="form-group"><label>Catatan</label><textarea id="f-inv-notes" rows="2"></textarea></div>
+    <div id="midtrans-notice" class="alert alert-info hidden">
+      💳 Invoice akan dibuatkan tautan pembayaran Midtrans secara otomatis.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-invoice')">Batal</button>
+      <button class="btn btn-primary" onclick="saveInvoice()">Buat Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Modal -->
+<div class="modal-overlay hidden" id="modal-transaction">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-tx-title">Tambah Transaksi</span>
+      <button class="modal-close" onclick="closeModal('modal-transaction')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Jenis *</label>
+        <select id="f-tx-type" onchange="onTxTypeChange()">
+          <option value="income">Pemasukan</option>
+          <option value="expense">Pengeluaran</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Kategori *</label>
+        <select id="f-tx-category"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Nominal (Rp) *</label><input type="number" id="f-tx-amount" placeholder="500000"/></div>
+      <div class="form-group"><label>Tanggal *</label><input type="date" id="f-tx-date"/></div>
+    </div>
+    <div class="form-group"><label>Keterangan *</label><input type="text" id="f-tx-desc" placeholder="Keterangan transaksi"/></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Metode Pembayaran</label>
+        <select id="f-tx-method">
+          <option value="transfer">Transfer Bank</option>
+          <option value="cash">Tunai</option>
+          <option value="qris">QRIS</option>
+          <option value="gateway">Payment Gateway</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Referensi</label><input type="text" id="f-tx-ref" placeholder="No. bukti"/></div>
+    </div>
+    <div class="form-group">
+      <label>Proyek (opsional)</label>
+      <select id="f-tx-project"><option value="">-- Tidak terkait proyek --</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-transaction')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTransaction()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Detail Modal -->
+<div class="modal-overlay hidden" id="modal-inv-detail">
+  <div class="modal modal-lg" id="invoice-detail-content"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL STATE
+═══════════════════════════════════════════════════════════════ */
+let state = {
+  page: 'dashboard',
+  user: null,
+  projects: [],
+  clients: [],
+  editingClientId: null,
+  editingProjectId: null,
+  editingTxId: null,
+  chartInstance: null,
+};
+
+const FMT = new Intl.NumberFormat('id-ID');
+const fmt = n => 'Rp ' + FMT.format(Math.round(n || 0));
+const fmtShort = n => {
+  if (n >= 1e9) return 'Rp ' + (n/1e9).toFixed(1) + 'M';
+  if (n >= 1e6) return 'Rp ' + (n/1e6).toFixed(1) + 'jt';
+  return fmt(n);
+};
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+function statusBadge(s) {
+  const map = {
+    pending:    ['badge-warning','Menunggu'],
+    dp_paid:    ['badge-info','DP Lunas'],
+    in_progress:['badge-purple','Proses'],
+    completed:  ['badge-success','Selesai'],
+    cancelled:  ['badge-danger','Batal'],
+    unpaid:     ['badge-muted','Belum Bayar'],
+    paid:       ['badge-success','Lunas'],
+    expired:    ['badge-danger','Kadaluarsa'],
+  };
+  const [cls, label] = map[s] || ['badge-muted', s];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function typeTag(t) {
+  const map = { photography:'📷 Photography', videography:'🎥 Videography', both:'📷🎥 Photo+Video' };
+  return `<span class="tag">${map[t]||t}</span>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════════════════════════════ */
+async function api(method, path, body) {
+  const opts = {
+    method,
+    credentials: 'include',
+    headers: {'Content-Type':'application/json'},
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+  return data;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════════ */
+async function init() {
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  try {
+    const me = await api('GET', '/auth/me');
+    state.user = me;
+    document.getElementById('sidebar-username').textContent = me.username;
+    showApp();
+    navigate('dashboard');
+  } catch {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById('login-page').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-username').focus();
+}
+
+function showApp() {
+  document.getElementById('login-page').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+}
+
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const alertEl = document.getElementById('login-alert');
+  alertEl.innerHTML = '';
+  try {
+    const r = await api('POST', '/auth/login', { username, password });
+    state.user = r;
+    document.getElementById('sidebar-username').textContent = r.username;
+    showApp();
+    navigate('dashboard');
+  } catch (e) {
+    alertEl.innerHTML = `<div class="alert alert-error">⚠️ ${e.message}</div>`;
+  }
+}
+
+async function doLogout() {
+  await api('POST', '/auth/logout');
+  state.user = null;
+  showLogin();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('login-page').classList.contains('hidden')) doLogin();
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+function navigate(page) {
+  state.page = page;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim().toLowerCase().includes(
+      page === 'dashboard' ? 'dashboard' :
+      page === 'projects' ? 'proyek' :
+      page === 'clients' ? 'klien' :
+      page === 'invoices' ? 'invoice' :
+      page === 'transactions' ? 'transaksi' :
+      page === 'reports' ? 'laporan' :
+      page === 'settings' ? 'pengaturan' : '___'
+    ));
+  });
+  const titles = {
+    dashboard:'📊 Dashboard', projects:'🎬 Manajemen Proyek', clients:'👥 Data Klien',
+    invoices:'🧾 Invoice & Pembayaran', transactions:'💳 Riwayat Transaksi',
+    reports:'📈 Laporan Keuangan', settings:'⚙️ Pengaturan',
+  };
+  document.getElementById('page-title').textContent = titles[page] || page;
+
+  const pages = {
+    dashboard: renderDashboard,
+    projects: renderProjects,
+    clients: renderClients,
+    invoices: renderInvoices,
+    transactions: renderTransactions,
+    reports: renderReports,
+    settings: renderSettings,
+  };
+  if (pages[page]) pages[page]();
+
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════════════════════ */
+async function renderDashboard() {
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="empty"><span class="icon spin">⏳</span>Memuat dashboard…</div>';
+  try {
+    const [summary, chart, recentTx, recentInv] = await Promise.all([
+      api('GET', '/transactions/summary'),
+      api('GET', `/transactions/monthly-chart?year=${new Date().getFullYear()}`),
+      api('GET', '/transactions?'),
+      api('GET', '/invoices?status=unpaid') ,
+    ]);
+
+    const incomeRows = (await api('GET',`/transactions?type=income`)).slice(0,5);
+    const recentInvAll = (await api('GET',`/invoices`)).slice(0,5);
+
+    content.innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card income">
+          <span class="stat-icon">💰</span>
+          <div class="stat-label">Total Pemasukan</div>
+          <div class="stat-value">${fmtShort(summary.income)}</div>
+          <div class="stat-sub">Semua waktu</div>
+        </div>
+        <div class="stat-card expense">
+          <span class="stat-icon">📤</span>
+          <div class="stat-label">Total Pengeluaran</div>
+          <div class="stat-value">${fmtShort(summary.expense)}</div>
+          <div class="stat-sub">Semua waktu</div>
+        </div>
+        <div class="stat-card balance">
+          <span class="stat-icon">🏦</span>
+          <div class="stat-label">Saldo Bersih</div>
+          <div class="stat-value ${summary.balance >= 0 ? 'text-success' : 'text-danger'}">${fmtShort(summary.balance)}</div>
+          <div class="stat-sub">Pemasukan – Pengeluaran</div>
+        </div>
+        <div class="stat-card pending">
+          <span class="stat-icon">⏳</span>
+          <div class="stat-label">Invoice Belum Dibayar</div>
+          <div class="stat-value">${summary.pendingInvoices.cnt}</div>
+          <div class="stat-sub">${fmtShort(summary.pendingInvoices.total)} menunggu</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🎬</span>
+          <div class="stat-label">Proyek Aktif</div>
+          <div class="stat-value">${summary.activeProjects}</div>
+          <div class="stat-sub">${summary.completedProjects} selesai</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">📈 Pemasukan & Pengeluaran ${new Date().getFullYear()}</div>
+          <div class="chart-container"><canvas id="main-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🧾 Invoice Terbaru</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Invoice</th><th>Klien</th><th>Nominal</th><th>Status</th></tr></thead>
+              <tbody>
+                ${recentInvAll.length ? recentInvAll.map(i => `
+                  <tr>
+                    <td><a href="#" onclick="viewInvoice(${i.id})">${i.invoice_number}</a></td>
+                    <td>${i.client_name}</td>
+                    <td class="font-bold">${fmtShort(i.amount)}</td>
+                    <td>${statusBadge(i.status)}</td>
+                  </tr>`).join('') : '<tr><td colspan="4" class="empty">Belum ada invoice</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-16"><button class="btn btn-outline btn-sm" onclick="navigate('invoices')">Lihat Semua →</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💳 Transaksi Terbaru</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Nominal</th><th>Jenis</th></tr></thead>
+            <tbody>
+              ${incomeRows.length ? incomeRows.map(t => `
+                <tr>
+                  <td class="text-muted">${t.date}</td>
+                  <td>${t.description}</td>
+                  <td><span class="tag">${t.category}</span></td>
+                  <td class="font-bold ${t.type==='income'?'text-success':'text-danger'}">${t.type==='income'?'+':'-'}${fmtShort(t.amount)}</td>
+                  <td>${t.type==='income'?'<span class="badge badge-success">Masuk</span>':'<span class="badge badge-danger">Keluar</span>'}</td>
+                </tr>`).join('') : '<tr><td colspan="5" class="empty">Belum ada transaksi</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-16"><button class="btn btn-outline btn-sm" onclick="navigate('transactions')">Lihat Semua →</button></div>
+      </div>
+    `;
+
+    // Chart
+    renderBarChart('main-chart', chart);
+  } catch (e) {
+    content.innerHTML = `<div class="alert alert-error">Gagal memuat: ${e.message}</div>`;
+  }
+}
+
+function renderBarChart(canvasId, chartData) {
+  if (state.chartInstance) { state.chartInstance.destroy(); state.chartInstance = null; }
+  const ctx = document.getElementById(canvasId)?.getContext('2d');
+  if (!ctx) return;
+  state.chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.map(d => MONTH_NAMES[parseInt(d.month)-1]),
+      datasets: [
+        { label:'Pemasukan', data: chartData.map(d=>d.income), backgroundColor:'rgba(22,163,74,.7)', borderRadius:4 },
+        { label:'Pengeluaran', data: chartData.map(d=>d.expense), backgroundColor:'rgba(220,38,38,.7)', borderRadius:4 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position:'bottom' } },
+      scales: {
+        y: { ticks: { callback: v => fmtShort(v) } },
+        x: { grid: { display: false } },
+      },
+    },
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROJECTS
+═══════════════════════════════════════════════════════════════ */
+async function renderProjects() {
+  const content = document.getElementById('content');
+  try {
+    const projects = await api('GET', '/projects');
+    state.projects = projects;
+    content.innerHTML = `
+      <div class="page-header">
+        <div class="page-title">Manajemen Proyek</div>
+        <button class="btn btn-primary" onclick="openAddProject()">+ Proyek Baru</button>
+      </div>
+      <div class="filters" style="margin-bottom:16px">
+        <select id="proj-filter-status" onchange="filterProjects()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px">
+          <option value="">Semua Status</option>
+          <option value="pending">Pending</option>
+          <option value="dp_paid">DP Lunas</option>
+          <option value="in_progress">Dalam Proses</option>
+          <option value="completed">Selesai</option>
+          <option value="cancelled">Dibatalkan</option>
+        </select>
+        <select id="proj-filter-type" onchange="filterProjects()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px">
+          <option value="">Semua Jenis</option>
+          <option value="photography">Photography</option>
+          <option value="videography">Videography</option>
+          <option value="both">Both</option>
+        </select>
+        <input id="proj-search" type="text" placeholder="Cari proyek..." oninput="filterProjects()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;min-width:200px"/>
+      </div>
+      <div id="projects-table-wrap">
+        ${renderProjectsTable(projects)}
+      </div>
+    `;
+  } catch (e) {
+    content.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+}
+
+function renderProjectsTable(projects) {
+  if (!projects.length) return `<div class="empty"><span class="icon">🎬</span>Belum ada proyek. <button class="btn btn-primary btn-sm" onclick="openAddProject()">+ Tambah Proyek</button></div>`;
+  return `
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Proyek</th><th>Klien</th><th>Jenis</th>
+              <th>Nilai Total</th><th>Terbayar</th><th>Sisa</th>
+              <th>Status</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${projects.map(p => {
+              const paid = p.total_paid || 0;
+              const pct = p.total_value > 0 ? Math.min(100, Math.round(paid/p.total_value*100)) : 0;
+              return `<tr>
+                <td>
+                  <div class="font-bold">${p.title}</div>
+                  <div class="text-muted" style="font-size:11px">${p.project_date||'—'}</div>
+                </td>
+                <td>
+                  <div>${p.client_name}</div>
+                  <div class="text-muted" style="font-size:11px">${p.client_phone||''}</div>
+                </td>
+                <td>${typeTag(p.type)}</td>
+                <td class="font-bold">${fmt(p.total_value)}</td>
+                <td>
+                  <div>${fmt(paid)}</div>
+                  <div class="progress-bar" style="width:80px;margin-top:4px"><div class="progress-fill" style="width:${pct}%"></div></div>
+                  <div class="text-muted" style="font-size:10px">${pct}%</div>
+                </td>
+                <td class="${p.remaining>0?'text-danger':'text-success'}">${fmt(p.remaining)}</td>
+                <td>${statusBadge(p.status)}</td>
+                <td>
+                  <div style="display:flex;gap:4px">
+                    <button class="btn btn-icon" title="Buat Invoice" onclick="openInvoiceForProject(${p.id})">🧾</button>
+                    <button class="btn btn-icon" title="Edit" onclick="openEditProject(${p.id})">✏️</button>
+                    <button class="btn btn-icon" title="Hapus" onclick="deleteProject(${p.id},'${p.title.replace(/'/g,"\\'")}')">🗑️</button>
+                  </div>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterProjects() {
+  const status = document.getElementById('proj-filter-status')?.value || '';
+  const type   = document.getElementById('proj-filter-type')?.value   || '';
+  const search = (document.getElementById('proj-search')?.value || '').toLowerCase();
+  const filtered = state.projects.filter(p =>
+    (!status || p.status === status) &&
+    (!type   || p.type === type) &&
+    (!search || p.title.toLowerCase().includes(search) || p.client_name.toLowerCase().includes(search))
+  );
+  document.getElementById('projects-table-wrap').innerHTML = renderProjectsTable(filtered);
+}
+
+async function openAddProject() {
+  state.editingProjectId = null;
+  document.getElementById('modal-project-title').textContent = 'Tambah Proyek Baru';
+  ['f-project-title','f-project-desc','f-project-notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('f-project-total').value = '';
+  document.getElementById('f-project-dp').value = '';
+  document.getElementById('f-project-date').value = '';
+  document.getElementById('f-project-type').value = 'photography';
+  document.getElementById('f-project-status').value = 'pending';
+  await loadClientSelect('f-project-client');
+  openModal('modal-project');
+}
+
+async function openEditProject(id) {
+  state.editingProjectId = id;
+  const p = await api('GET', `/projects/${id}`);
+  document.getElementById('modal-project-title').textContent = 'Edit Proyek';
+  await loadClientSelect('f-project-client', p.client_id);
+  document.getElementById('f-project-type').value   = p.type;
+  document.getElementById('f-project-title').value  = p.title;
+  document.getElementById('f-project-date').value   = p.project_date || '';
+  document.getElementById('f-project-total').value  = p.total_value;
+  document.getElementById('f-project-dp').value     = p.dp_amount;
+  document.getElementById('f-project-status').value = p.status;
+  document.getElementById('f-project-desc').value   = p.description || '';
+  document.getElementById('f-project-notes').value  = p.notes || '';
+  openModal('modal-project');
+}
+
+async function loadClientSelect(selectId, selectedId = null) {
+  const clients = await api('GET', '/clients');
+  state.clients = clients;
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Pilih Klien --</option>' +
+    clients.map(c => `<option value="${c.id}" ${c.id==selectedId?'selected':''}>${c.name}</option>`).join('');
+}
+
+function calcRemaining() {
+  const total = parseFloat(document.getElementById('f-project-total').value) || 0;
+  const dp    = parseFloat(document.getElementById('f-project-dp').value)    || 0;
+}
+
+async function saveProject() {
+  const data = {
+    client_id:    document.getElementById('f-project-client').value,
+    type:         document.getElementById('f-project-type').value,
+    title:        document.getElementById('f-project-title').value.trim(),
+    project_date: document.getElementById('f-project-date').value,
+    total_value:  document.getElementById('f-project-total').value,
+    dp_amount:    document.getElementById('f-project-dp').value || 0,
+    status:       document.getElementById('f-project-status').value,
+    description:  document.getElementById('f-project-desc').value.trim(),
+    notes:        document.getElementById('f-project-notes').value.trim(),
+  };
+  try {
+    if (state.editingProjectId) {
+      await api('PUT', `/projects/${state.editingProjectId}`, data);
+      toast('✅ Proyek berhasil diperbarui', 'success');
+    } else {
+      await api('POST', '/projects', data);
+      toast('✅ Proyek berhasil ditambahkan', 'success');
+    }
+    closeModal('modal-project');
+    renderProjects();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function deleteProject(id, title) {
+  if (!confirm(`Hapus proyek "${title}"?`)) return;
+  try {
+    await api('DELETE', `/projects/${id}`);
+    toast('✅ Proyek dihapus');
+    renderProjects();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+function openInvoiceForProject(projectId) {
+  navigate('invoices');
+  setTimeout(() => {
+    openModal('modal-invoice');
+    loadInvoiceProjectSelect(projectId);
+  }, 100);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLIENTS
+═══════════════════════════════════════════════════════════════ */
+async function renderClients() {
+  const content = document.getElementById('content');
+  try {
+    const clients = await api('GET', '/clients');
+    state.clients = clients;
+    content.innerHTML = `
+      <div class="page-header">
+        <div class="page-title">Data Klien</div>
+        <button class="btn btn-primary" onclick="openAddClient()">+ Tambah Klien</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama</th><th>Email</th><th>Telepon</th><th>Proyek</th><th>Total Nilai</th><th>Aksi</th></tr></thead>
+            <tbody>
+              ${clients.length ? clients.map(c => `
+                <tr>
+                  <td class="font-bold">${c.name}</td>
+                  <td>${c.email||'—'}</td>
+                  <td>${c.phone||'—'}</td>
+                  <td><span class="badge badge-info">${c.project_count} proyek</span></td>
+                  <td class="font-bold">${fmt(c.total_project_value)}</td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-icon" onclick="openEditClient(${c.id})">✏️</button>
+                      <button class="btn btn-icon" onclick="deleteClient(${c.id},'${c.name.replace(/'/g,"\\'")}')">🗑️</button>
+                    </div>
+                  </td>
+                </tr>`).join('') :
+                '<tr><td colspan="6" class="empty">Belum ada klien</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    content.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+}
+
+function openAddClient() {
+  state.editingClientId = null;
+  document.getElementById('modal-client-title').textContent = 'Tambah Klien';
+  ['f-client-name','f-client-email','f-client-phone','f-client-address'].forEach(id => document.getElementById(id).value='');
+  openModal('modal-client');
+}
+
+async function openEditClient(id) {
+  const c = await api('GET', `/clients/${id}`);
+  state.editingClientId = id;
+  document.getElementById('modal-client-title').textContent = 'Edit Klien';
+  document.getElementById('f-client-name').value    = c.name;
+  document.getElementById('f-client-email').value   = c.email || '';
+  document.getElementById('f-client-phone').value   = c.phone || '';
+  document.getElementById('f-client-address').value = c.address || '';
+  openModal('modal-client');
+}
+
+async function saveClient() {
+  const data = {
+    name:    document.getElementById('f-client-name').value.trim(),
+    email:   document.getElementById('f-client-email').value.trim(),
+    phone:   document.getElementById('f-client-phone').value.trim(),
+    address: document.getElementById('f-client-address').value.trim(),
+  };
+  try {
+    if (state.editingClientId) {
+      await api('PUT', `/clients/${state.editingClientId}`, data);
+      toast('✅ Klien diperbarui', 'success');
+    } else {
+      await api('POST', '/clients', data);
+      toast('✅ Klien ditambahkan', 'success');
+    }
+    closeModal('modal-client');
+    renderClients();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function deleteClient(id, name) {
+  if (!confirm(`Hapus klien "${name}"?`)) return;
+  try {
+    await api('DELETE', `/clients/${id}`);
+    toast('✅ Klien dihapus');
+    renderClients();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INVOICES
+═══════════════════════════════════════════════════════════════ */
+async function renderInvoices() {
+  const content = document.getElementById('content');
+  try {
+    const [invoices, projects] = await Promise.all([
+      api('GET', '/invoices'),
+      api('GET', '/projects'),
+    ]);
+    state.projects = projects;
+
+    const midtransConfigured = true; // will know from snap token presence
+
+    content.innerHTML = `
+      <div class="page-header">
+        <div class="page-title">Invoice & Pembayaran</div>
+        <button class="btn btn-primary" onclick="openModal('modal-invoice');loadInvoiceProjectSelect()">+ Buat Invoice</button>
+      </div>
+
+      <div class="alert alert-info">
+        💡 Invoice dengan status "Menunggu" telah memiliki tautan pembayaran Midtrans. 
+        Pembayaran akan diverifikasi otomatis via webhook. Anda juga dapat menandai lunas secara manual.
+      </div>
+
+      <div class="filters" style="margin-bottom:16px">
+        <select id="inv-filter" onchange="filterInvoices()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px">
+          <option value="">Semua Status</option>
+          <option value="unpaid">Belum Bayar</option>
+          <option value="pending">Menunggu Pembayaran</option>
+          <option value="paid">Lunas</option>
+          <option value="expired">Kadaluarsa</option>
+        </select>
+      </div>
+
+      <div class="card" id="invoices-table-wrap">
+        <div class="table-wrap">
+          <table id="invoices-table">
+            <thead>
+              <tr>
+                <th>No. Invoice</th><th>Proyek</th><th>Klien</th>
+                <th>Jenis</th><th>Nominal</th><th>Jatuh Tempo</th>
+                <th>Status</th><th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="invoices-tbody">
+              ${renderInvoicesRows(invoices)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    window._allInvoices = invoices;
+  } catch (e) {
+    content.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+}
+
+function renderInvoicesRows(invoices) {
+  if (!invoices.length) return '<tr><td colspan="8" class="empty">Belum ada invoice</td></tr>';
+  return invoices.map(i => `
+    <tr>
+      <td><a href="#" onclick="viewInvoice(${i.id})" class="font-bold">${i.invoice_number}</a></td>
+      <td>${i.project_title}</td>
+      <td>${i.client_name}</td>
+      <td><span class="tag">${{dp:'DP',remaining:'Pelunasan',full:'Full',custom:'Custom'}[i.type]||i.type}</span></td>
+      <td class="font-bold">${fmt(i.amount)}</td>
+      <td class="text-muted">${i.due_date||'—'}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          ${i.midtrans_redirect_url && i.status !== 'paid'
+            ? `<a href="${i.midtrans_redirect_url}" target="_blank" class="btn btn-sm btn-primary">💳 Bayar</a>` : ''}
+          ${i.status !== 'paid'
+            ? `<button class="btn btn-sm btn-success" onclick="manualPaid(${i.id})">✅ Lunas</button>` : ''}
+          <button class="btn btn-icon" onclick="viewInvoice(${i.id})">👁</button>
+          ${i.status !== 'paid'
+            ? `<button class="btn btn-icon" onclick="deleteInvoice(${i.id})">🗑️</button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterInvoices() {
+  const status = document.getElementById('inv-filter')?.value || '';
+  const filtered = status ? (window._allInvoices||[]).filter(i=>i.status===status) : (window._allInvoices||[]);
+  document.getElementById('invoices-tbody').innerHTML = renderInvoicesRows(filtered);
+}
+
+async function loadInvoiceProjectSelect(preselect = null) {
+  const projs = state.projects.length ? state.projects : await api('GET', '/projects');
+  state.projects = projs;
+  const sel = document.getElementById('f-inv-project');
+  sel.innerHTML = '<option value="">-- Pilih Proyek --</option>' +
+    projs.filter(p => p.status !== 'cancelled' && p.status !== 'completed').map(p =>
+      `<option value="${p.id}" ${p.id==preselect?'selected':''}>${p.title} (${p.client_name})</option>`
+    ).join('');
+  if (preselect) {
+    sel.value = preselect;
+    onInvProjectChange();
+  }
+  // Check Midtrans configured
+  const skey = await fetch('/api/auth/me').then(r=>r.ok).catch(()=>false);
+  document.getElementById('midtrans-notice').classList.remove('hidden');
+}
+
+function onInvProjectChange() {
+  const pid = document.getElementById('f-inv-project').value;
+  if (!pid) return;
+  const proj = state.projects.find(p => p.id == pid);
+  if (!proj) return;
+  onInvTypeChange();
+}
+
+function onInvTypeChange() {
+  const pid  = document.getElementById('f-inv-project').value;
+  const type = document.getElementById('f-inv-type').value;
+  const proj = state.projects.find(p => p.id == pid);
+  if (!proj) return;
+  const amtEl = document.getElementById('f-inv-amount');
+  if (type === 'dp') amtEl.value = proj.dp_amount || '';
+  else if (type === 'remaining') amtEl.value = proj.remaining || '';
+  else if (type === 'full') amtEl.value = proj.total_value || '';
+}
+
+async function saveInvoice() {
+  const data = {
+    project_id: document.getElementById('f-inv-project').value,
+    type:       document.getElementById('f-inv-type').value,
+    amount:     document.getElementById('f-inv-amount').value,
+    due_date:   document.getElementById('f-inv-due').value,
+    notes:      document.getElementById('f-inv-notes').value.trim(),
+  };
+  try {
+    const inv = await api('POST', '/invoices', data);
+    closeModal('modal-invoice');
+    toast('✅ Invoice dibuat' + (inv.snap_token ? ' dengan tautan pembayaran' : ''), 'success');
+    renderInvoices();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function manualPaid(id) {
+  const method = prompt('Metode pembayaran? (transfer/cash/qris)', 'transfer');
+  if (!method) return;
+  try {
+    await api('POST', `/invoices/${id}/manual-paid`, { payment_method: method });
+    toast('✅ Invoice ditandai lunas', 'success');
+    renderInvoices();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function deleteInvoice(id) {
+  if (!confirm('Hapus invoice ini?')) return;
+  try {
+    await api('DELETE', `/invoices/${id}`);
+    toast('✅ Invoice dihapus');
+    renderInvoices();
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function viewInvoice(id) {
+  try {
+    const inv = await api('GET', `/invoices/${id}`);
+    const el = document.getElementById('invoice-detail-content');
+    const payBtn = inv.midtrans_redirect_url && inv.status !== 'paid'
+      ? `<a href="${inv.midtrans_redirect_url}" target="_blank" class="btn btn-primary">💳 Tautan Pembayaran</a>` : '';
+    el.innerHTML = `
+      <div class="modal-header">
+        <span class="modal-title">Detail Invoice</span>
+        <button class="modal-close" onclick="closeModal('modal-inv-detail');window.print&&false">✕</button>
+      </div>
+      <div class="invoice-card" style="border:none;padding:0">
+        <div class="invoice-header">
+          <div class="invoice-from">
+            <h3>📷 Studio Anda</h3>
+            <p>Photography & Videography</p>
+          </div>
+          <div style="text-align:right">
+            <div class="font-bold" style="font-size:18px">${inv.invoice_number}</div>
+            <div class="text-muted">Dibuat: ${inv.created_at?.split('T')[0]||inv.created_at?.split(' ')[0]}</div>
+            ${inv.due_date ? `<div class="text-muted">Jatuh Tempo: ${inv.due_date}</div>` : ''}
+            <div style="margin-top:8px">${statusBadge(inv.status)}</div>
+          </div>
+        </div>
+        <hr class="divider"/>
+        <div class="grid-2">
+          <div>
+            <div class="text-muted" style="font-size:11px;font-weight:600;text-transform:uppercase">Tagihan Kepada</div>
+            <div class="font-bold" style="margin-top:4px">${inv.client_name}</div>
+            ${inv.client_email ? `<div class="text-muted">${inv.client_email}</div>` : ''}
+            ${inv.client_phone ? `<div class="text-muted">${inv.client_phone}</div>` : ''}
+          </div>
+          <div>
+            <div class="text-muted" style="font-size:11px;font-weight:600;text-transform:uppercase">Proyek</div>
+            <div class="font-bold" style="margin-top:4px">${inv.project_title}</div>
+            <div>${typeTag(inv.project_type)}</div>
+          </div>
+        </div>
+        <hr class="divider"/>
+        <div class="invoice-items">
+          <table>
+            <thead><tr><th>Deskripsi</th><th>Jenis</th><th class="text-right">Nominal</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>${inv.project_title}</td>
+                <td>${{dp:'Down Payment (DP)',remaining:'Pelunasan',full:'Pembayaran Penuh',custom:'Pembayaran Custom'}[inv.type]||inv.type}</td>
+                <td class="text-right font-bold">${fmt(inv.amount)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="invoice-total">
+          <div class="total-row grand">
+            <span>TOTAL</span>
+            <span>${fmt(inv.amount)}</span>
+          </div>
+        </div>
+        ${inv.notes ? `<div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted)">📝 ${inv.notes}</div>` : ''}
+        ${inv.status === 'paid' ? `<div class="alert alert-success" style="margin-top:16px">✅ LUNAS – Dibayar pada ${inv.paid_at||'—'} via ${inv.payment_method||'—'}</div>` : ''}
+      </div>
+      <div class="modal-actions">
+        ${payBtn}
+        ${inv.status !== 'paid' ? `<button class="btn btn-success" onclick="closeModal('modal-inv-detail');manualPaid(${inv.id})">✅ Tandai Lunas</button>` : ''}
+        <button class="btn btn-secondary" onclick="closeModal('modal-inv-detail')">Tutup</button>
+      </div>
+    `;
+    openModal('modal-inv-detail');
+  } catch (e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TRANSACTIONS
+═══════════════════════════════════════════════════════════════ */
+async function renderTransactions() {
+  const content = document.getElementById('content');
+  const now = new Date();
+  try {
+    const [transactions, projects, cats] = await Promise.all([
+      api('GET', '/transactions'),
+      api('GET', '/projects'),
+      api('GET', '/transactions/expense-categories'),
+    ]);
+    state.projects = projects;
+    window._allTx = transactions;
+    window._expenseCats = cats;
+
+    content.innerHTML = `
+      <div class="page-header">
+        <div class="page-title">Riwayat Transaksi</div>
+        <button class="btn btn-primary" onclick="openAddTx()">+ Tambah Transaksi</button>
+      </div>
+      <div class="filters" style="margin-bottom:16px">
+        <select id="tx-filter-type" onchange="filterTx()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px">
+          <option value="">Semua Jenis</option>
+          <option value="income">Pemasukan</option>
+          <option value="expense">Pengeluaran</option>
+        </select>
+        <select id="tx-filter-month" onchange="filterTx()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px">
+          <option value="">Semua Bulan</option>
+          ${MONTH_NAMES.map((m,i)=>`<option value="${String(i+1).padStart(2,'0')}" ${i===now.getMonth()?'selected':''}>${m}</option>`).join('')}
+        </select>
+        <select id="tx-filter-year" onchange="filterTx()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px">
+          ${[now.getFullYear(), now.getFullYear()-1].map(y=>`<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}</option>`).join('')}
+        </select>
+      </div>
+      <div id="tx-summary-bar" style="margin-bottom:16px"></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Proyek</th><th>Metode</th><th>Nominal</th><th>Aksi</th></tr></thead>
+            <tbody id="tx-tbody">${renderTxRows(transactions)}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    updateTxSummary(transactions);
+  } catch (e) {
+    content.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+}
+
+function renderTxRows(txs) {
+  if (!txs.length) return '<tr><td colspan="7" class="empty">Tidak ada transaksi</td></tr>';
+  return txs.map(t => `
+    <tr>
+      <td class="text-muted">${t.date}</td>
+      <td>${t.description}</td>
+      <td><span class="tag">${t.category}</span></td>
+      <td class="text-muted">${t.project_title||'—'}</td>
+      <td class="text-muted">${t.payment_method||'—'}</td>
+      <td class="font-bold ${t.type==='income'?'text-success':'text-danger'}">
+        ${t.type==='income'?'+':'-'}${fmt(t.amount)}
+      </td>
+      <td>
+        ${!t.invoice_id ? `<button class="btn btn-icon" onclick="deleteTx(${t.id})">🗑️</button>` : '<span class="text-muted" style="font-size:11px">Auto</span>'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateTxSummary(txs) {
+  const income  = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const el = document.getElementById('tx-summary-bar');
+  if (el) el.innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="stat-card income" style="flex:1;min-width:160px;padding:14px">
+        <div class="stat-label">Pemasukan</div>
+        <div class="stat-value" style="font-size:18px">${fmtShort(income)}</div>
+      </div>
+      <div class="stat-card expense" style="flex:1;min-width:160px;padding:14px">
+        <div class="stat-label">Pengeluaran</div>
+        <div class="stat-value" style="font-size:18px">${fmtShort(expense)}</div>
+      </div>
+      <div class="stat-card balance" style="flex:1;min-width:160px;padding:14px">
+        <div class="stat-label">Selisih</div>
+        <div class="stat-value ${income-expense>=0?'text-success':'text-danger'}" style="font-size:18px">${fmtShort(income-expense)}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function filterTx() {
+  const type  = document.getElementById('tx-filter-type')?.value || '';
+  const month = document.getElementById('tx-filter-month')?.value || '';
+  const year  = document.getElementById('tx-filter-year')?.value  || '';
+  try {
+    let q = '/transactions?';
+    if (type) q += `type=${type}&`;
+    if (month) q += `month=${parseInt(month)}&`;
+    if (year)  q += `year=${year}&`;
+    const txs = await api('GET', q);
+    document.getElementById('tx-tbody').innerHTML = renderTxRows(txs);
+    updateTxSummary(txs);
+  } catch (e) { toast('❌ '+e.message,'error'); }
+}
+
+async function openAddTx() {
+  state.editingTxId = null;
+  document.getElementById('modal-tx-title').textContent = 'Tambah Transaksi';
+  document.getElementById('f-tx-type').value   = 'income';
+  document.getElementById('f-tx-amount').value = '';
+  document.getElementById('f-tx-desc').value   = '';
+  document.getElementById('f-tx-ref').value    = '';
+  document.getElementById('f-tx-date').value   = new Date().toISOString().split('T')[0];
+  document.getElementById('f-tx-method').value = 'transfer';
+  await loadTxCategorySelect('income');
+  // Load projects
+  const projs = state.projects.length ? state.projects : await api('GET', '/projects');
+  const psel = document.getElementById('f-tx-project');
+  psel.innerHTML = '<option value="">-- Tidak terkait proyek --</option>' +
+    projs.map(p=>`<option value="${p.id}">${p.title}</option>`).join('');
+  openModal('modal-transaction');
+}
+
+async function loadTxCategorySelect(type) {
+  const sel = document.getElementById('f-tx-category');
+  if (type === 'income') {
+    sel.innerHTML = ['Pembayaran Proyek','DP Proyek','Pelunasan Proyek','Lain-lain'].map(c=>`<option value="${c}">${c}</option>`).join('');
+  } else {
+    const cats = window._expenseCats || await api('GET','/transactions/expense-categories');
+    sel.innerHTML = cats.map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  }
+}
+
+function onTxTypeChange() {
+  loadTxCategorySelect(document.getElementById('f-tx-type').value);
+}
+
+async function saveTransaction() {
+  const data = {
+    type:           document.getElementById('f-tx-type').value,
+    category:       document.getElementById('f-tx-category').value,
+    amount:         document.getElementById('f-tx-amount').value,
+    description:    document.getElementById('f-tx-desc').value.trim(),
+    date:           document.getElementById('f-tx-date').value,
+    payment_method: document.getElementById('f-tx-method').value,
+    reference:      document.getElementById('f-tx-ref').value.trim(),
+    project_id:     document.getElementById('f-tx-project').value || null,
+  };
+  try {
+    await api('POST', '/transactions', data);
+    toast('✅ Transaksi disimpan', 'success');
+    closeModal('modal-transaction');
+    renderTransactions();
+  } catch (e) {
+    toast('❌ '+e.message, 'error');
+  }
+}
+
+async function deleteTx(id) {
+  if (!confirm('Hapus transaksi ini?')) return;
+  try {
+    await api('DELETE', `/transactions/${id}`);
+    toast('✅ Transaksi dihapus');
+    renderTransactions();
+  } catch (e) {
+    toast('❌ '+e.message,'error');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REPORTS
+═══════════════════════════════════════════════════════════════ */
+async function renderReports() {
+  const content = document.getElementById('content');
+  const now = new Date();
+  const year  = now.getFullYear();
+  const month = now.getMonth() + 1;
+
+  try {
+    const [summary, chartData, cats] = await Promise.all([
+      api('GET', `/transactions/summary?year=${year}&month=${month}`),
+      api('GET', `/transactions/monthly-chart?year=${year}`),
+      api('GET', `/transactions/categories?type=expense&year=${year}&month=${month}`),
+    ]);
+
+    content.innerHTML = `
+      <div class="page-header">
+        <div class="page-title">Laporan Keuangan</div>
+        <div class="filters">
+          <select id="rep-month" onchange="reloadReport()">
+            ${MONTH_NAMES.map((m,i)=>`<option value="${i+1}" ${i+1==month?'selected':''}>${m}</option>`).join('')}
+          </select>
+          <select id="rep-year" onchange="reloadReport()">
+            ${[year, year-1].map(y=>`<option value="${y}" ${y==year?'selected':''}>${y}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div id="report-content">
+        ${buildReportHTML(summary, chartData, cats, month, year)}
+      </div>
+    `;
+    renderReportChart('rep-chart', chartData);
+  } catch (e) {
+    content.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+}
+
+function buildReportHTML(summary, chartData, cats, month, year) {
+  const monthName = MONTH_NAMES[month-1];
+  const catTotal = cats.reduce((s,c)=>s+c.total, 0);
+  return `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card income">
+        <span class="stat-icon">💰</span>
+        <div class="stat-label">Pemasukan ${monthName}</div>
+        <div class="stat-value">${fmtShort(summary.income)}</div>
+      </div>
+      <div class="stat-card expense">
+        <span class="stat-icon">📤</span>
+        <div class="stat-label">Pengeluaran ${monthName}</div>
+        <div class="stat-value">${fmtShort(summary.expense)}</div>
+      </div>
+      <div class="stat-card balance">
+        <span class="stat-icon">📊</span>
+        <div class="stat-label">Profit ${monthName}</div>
+        <div class="stat-value ${summary.profit>=0?'text-success':'text-danger'}">${fmtShort(summary.profit)}</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🏦</span>
+        <div class="stat-label">Saldo Keseluruhan</div>
+        <div class="stat-value ${summary.balance>=0?'text-success':'text-danger'}">${fmtShort(summary.balance)}</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-title">📈 Tren Bulanan ${year}</div>
+        <div class="chart-container"><canvas id="rep-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📤 Kategori Pengeluaran – ${monthName} ${year}</div>
+        ${cats.length ? cats.map(c => `
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span>${c.category}</span>
+              <span class="font-bold">${fmt(c.total)}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${catTotal>0?Math.round(c.total/catTotal*100):0}%;background:var(--danger)"></div>
+            </div>
+            <div class="text-muted" style="font-size:11px;margin-top:2px">${c.count} transaksi · ${catTotal>0?Math.round(c.total/catTotal*100):0}%</div>
+          </div>
+        `).join('') : '<div class="empty">Tidak ada pengeluaran bulan ini</div>'}
+      </div>
+    </div>
+  `;
+}
+
+async function reloadReport() {
+  const month = parseInt(document.getElementById('rep-month').value);
+  const year  = parseInt(document.getElementById('rep-year').value);
+  try {
+    const [summary, chartData, cats] = await Promise.all([
+      api('GET', `/transactions/summary?year=${year}&month=${month}`),
+      api('GET', `/transactions/monthly-chart?year=${year}`),
+      api('GET', `/transactions/categories?type=expense&year=${year}&month=${month}`),
+    ]);
+    if (state.chartInstance) { state.chartInstance.destroy(); state.chartInstance = null; }
+    document.getElementById('report-content').innerHTML = buildReportHTML(summary, chartData, cats, month, year);
+    renderReportChart('rep-chart', chartData);
+  } catch (e) { toast('❌ '+e.message,'error'); }
+}
+
+function renderReportChart(canvasId, chartData) {
+  if (state.chartInstance) { state.chartInstance.destroy(); state.chartInstance = null; }
+  const ctx = document.getElementById(canvasId)?.getContext('2d');
+  if (!ctx) return;
+  state.chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartData.map(d => MONTH_NAMES[parseInt(d.month)-1]),
+      datasets: [
+        { label:'Pemasukan', data: chartData.map(d=>d.income), borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,.1)', tension:.3, fill:true },
+        { label:'Pengeluaran', data: chartData.map(d=>d.expense), borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,.1)', tension:.3, fill:true },
+        { label:'Profit', data: chartData.map(d=>d.profit), borderColor:'#3b82d4', backgroundColor:'rgba(59,130,212,.1)', tension:.3, fill:false },
+      ],
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom' } },
+      scales:{ y:{ ticks:{ callback: v=>fmtShort(v) } }, x:{ grid:{ display:false } } },
+    },
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════════════════════ */
+async function renderSettings() {
+  const content = document.getElementById('content');
+  content.innerHTML = `
+    <div class="page-title" style="margin-bottom:20px">Pengaturan</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🔐 Ubah Password</div>
+        <div id="pwd-alert"></div>
+        <div class="form-group"><label>Password Lama</label><input type="password" id="s-old-pwd"/></div>
+        <div class="form-group"><label>Password Baru</label><input type="password" id="s-new-pwd"/></div>
+        <div class="form-group"><label>Konfirmasi Password</label><input type="password" id="s-conf-pwd"/></div>
+        <button class="btn btn-primary" onclick="changePassword()">Simpan Password</button>
+      </div>
+      <div class="card">
+        <div class="card-title">💳 Konfigurasi Midtrans</div>
+        <div class="alert alert-info">
+          <strong>Cara Konfigurasi Midtrans:</strong><br>
+          1. Daftar di <a href="https://dashboard.sandbox.midtrans.com" target="_blank">dashboard.sandbox.midtrans.com</a><br>
+          2. Salin Server Key dan Client Key dari menu Settings → Access Keys<br>
+          3. Isi nilai tersebut di file <code>.env</code> pada folder project<br>
+          4. Restart server<br><br>
+          <strong>Webhook URL (untuk verifikasi otomatis):</strong><br>
+          <code>${location.origin}/api/invoices/webhook</code><br><br>
+          Tambahkan URL webhook di dashboard Midtrans: Settings → Configuration → Payment Notification URL
+        </div>
+        <div style="margin-top:12px">
+          <span class="badge badge-warning">⚠️ Mode Sandbox Aktif</span>
+          <p class="text-muted" style="margin-top:8px;font-size:12px">
+            Untuk beralih ke production, ubah <code>MIDTRANS_IS_PRODUCTION=true</code> di file <code>.env</code> 
+            dan ganti kredensial dengan kunci production dari Midtrans.
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">ℹ️ Informasi Aplikasi</div>
+        <table style="width:100%">
+          <tr><td class="text-muted">Paket</td><td class="font-bold">Paket B – Photography Finance Manager</td></tr>
+          <tr><td class="text-muted">Versi</td><td>1.0.0</td></tr>
+          <tr><td class="text-muted">Backend</td><td>Node.js + Express</td></tr>
+          <tr><td class="text-muted">Database</td><td>SQLite (better-sqlite3)</td></tr>
+          <tr><td class="text-muted">Payment Gateway</td><td>Midtrans (Sandbox)</td></tr>
+          <tr><td class="text-muted">User</td><td id="settings-user">—</td></tr>
+        </table>
+        <div style="margin-top:16px" class="text-muted" style="font-size:12px">
+          ⚠️ Biaya hosting, domain, dan biaya transaksi payment gateway tidak termasuk dalam paket ini.
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('settings-user').textContent = state.user?.username || '—';
+}
+
+async function changePassword() {
+  const old  = document.getElementById('s-old-pwd').value;
+  const nw   = document.getElementById('s-new-pwd').value;
+  const conf = document.getElementById('s-conf-pwd').value;
+  const alert = document.getElementById('pwd-alert');
+  alert.innerHTML = '';
+  if (!old || !nw || !conf) { alert.innerHTML = '<div class="alert alert-error">Semua field wajib diisi.</div>'; return; }
+  if (nw !== conf) { alert.innerHTML = '<div class="alert alert-error">Password baru tidak cocok.</div>'; return; }
+  if (nw.length < 6) { alert.innerHTML = '<div class="alert alert-error">Password minimal 6 karakter.</div>'; return; }
+  try {
+    await api('POST', '/auth/change-password', { currentPassword: old, newPassword: nw });
+    alert.innerHTML = '<div class="alert alert-success">✅ Password berhasil diubah.</div>';
+    document.getElementById('s-old-pwd').value = '';
+    document.getElementById('s-new-pwd').value = '';
+    document.getElementById('s-conf-pwd').value = '';
+  } catch (e) {
+    alert.innerHTML = `<div class="alert alert-error">❌ ${e.message}</div>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
+
