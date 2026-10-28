@@ -1,0 +1,81 @@
+/* ===== PROJECTS PAGE ===== */
+.project-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.proj-stat {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.proj-stat-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--clr-muted);
+  margin-bottom: 5px;
+}
+.proj-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--clr-text);
+}
+
+/* Progress bar */
+.progress-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--clr-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--clr-income);
+  transition: width .5s ease;
+}
+.progress-bar.partial  { background: var(--clr-info); }
+.progress-bar.pending  { background: var(--clr-warn); }
+.progress-bar.paid     { background: var(--clr-income); }
+
+/* Project type badge */
+.proj-type-photo { background: #e0e7ff; color: #4338ca; }
+.proj-type-video { background: #fce7f3; color: #9d174d; }
+.proj-type-both  { background: #f0fdf4; color: #166534; }
+
+/* Detail modal */
+.proj-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+}
+.proj-detail-field { display: flex; flex-direction: column; gap: 3px; }
+.proj-detail-label { font-size: 11.5px; color: var(--clr-muted); font-weight: 600; text-transform: uppercase; }
+.proj-detail-value { font-size: 14.5px; font-weight: 600; }
+
+.payment-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f0f1f3;
+  font-size: 13.5px;
+}
+.payment-history-item:last-child { border-bottom: none; }
+.payment-history-item .ph-date { color: var(--clr-muted); font-size: 12px; min-width: 90px; }
+.payment-history-item .ph-desc { flex: 1; }
+.payment-history-item .ph-amount { font-weight: 700; color: var(--clr-income); }
+
+@media (max-width: 540px) {
+  .proj-detail-grid { grid-template-columns: 1fr; }
+}
+

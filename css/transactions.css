@@ -1,0 +1,83 @@
+/* ===== TRANSACTIONS PAGE ===== */
+.tx-filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.tx-filter-bar input,
+.tx-filter-bar select {
+  padding: 8px 13px;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background: var(--clr-surface);
+  color: var(--clr-text);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.tx-filter-bar input:focus,
+.tx-filter-bar select:focus { border-color: var(--clr-dark); }
+.tx-filter-bar input { min-width: 200px; }
+.tx-filter-bar select { min-width: 150px; }
+
+/* type tabs */
+.type-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.type-tab {
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--clr-border);
+  color: var(--clr-muted);
+  background: var(--clr-surface);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.type-tab:hover { border-color: var(--clr-dark); color: var(--clr-text); }
+.type-tab.active-all      { border-color: var(--clr-dark);    background: var(--clr-dark);    color: #fff; }
+.type-tab.active-income   { border-color: var(--clr-income);  background: var(--clr-income-bg); color: var(--clr-income); }
+.type-tab.active-expense  { border-color: var(--clr-expense); background: var(--clr-expense-bg); color: var(--clr-expense); }
+
+/* amount cell styles */
+.amount-income  { color: var(--clr-income);  font-weight: 700; }
+.amount-expense { color: var(--clr-expense); font-weight: 700; }
+
+/* summary row */
+.tx-summary-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.tx-summary-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tx-summary-pill span:first-child { color: var(--clr-muted); font-weight: 500; }
+
+/* category icon/color pill */
+.cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--clr-bg);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: var(--clr-muted);
+}
+

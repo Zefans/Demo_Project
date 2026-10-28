@@ -1,0 +1,107 @@
+/* ===== LOGIN / REGISTER PAGE ===== */
+#page-login.active,
+#page-register.active {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 40%, #16213e 100%);
+  padding: 20px;
+}
+
+.login-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  display: inline-flex;
+  margin-bottom: 14px;
+}
+
+.login-brand h1 {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--clr-accent);
+  letter-spacing: .5px;
+}
+
+.login-brand p {
+  font-size: 13.5px;
+  color: rgba(255,255,255,.5);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.login-form {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  padding: 30px 28px 26px;
+  backdrop-filter: blur(10px);
+}
+
+.login-form .form-group label {
+  color: rgba(255,255,255,.75);
+}
+
+.login-form input {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+.login-form input::placeholder { color: rgba(255,255,255,.3); }
+
+.login-form input:focus {
+  background: rgba(255,255,255,.1);
+  border-color: var(--clr-accent);
+  box-shadow: 0 0 0 3px rgba(201,168,76,.15);
+}
+
+.input-pw-wrap {
+  position: relative;
+}
+
+.input-pw-wrap input {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.btn-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,.4);
+  transition: color var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.btn-eye:hover { color: rgba(255,255,255,.8); }
+
+.login-form .btn-primary {
+  background: var(--clr-accent);
+  color: var(--clr-dark);
+  font-size: 15px;
+  padding: 11px;
+  margin-top: 4px;
+}
+
+.login-form .btn-primary:hover { background: var(--clr-accent-dk); }
+
+.login-hint {
+  text-align: center;
+  color: rgba(255,255,255,.35);
+  font-size: 12.5px;
+  margin-top: 14px;
+}
+
+.login-hint strong { color: rgba(255,255,255,.55); }
+
