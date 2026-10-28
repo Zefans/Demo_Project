@@ -55,7 +55,7 @@ const Dashboard = (() => {
     <div class="section-header">
       <div>
         <h2>Dashboard</h2>
-        <p>Ringkasan keuangan bisnis fotografi &amp; videografi Anda</p>
+        <p>Catat pemasukan dan pengeluaran studio katong, biar arus kas tetap jelas.</p>
       </div>
     </div>
 

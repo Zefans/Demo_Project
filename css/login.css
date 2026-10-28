@@ -5,7 +5,7 @@
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 40%, #16213e 100%);
+  background: linear-gradient(135deg, #102d32 0%, #17484a 48%, #176b6d 100%);
   padding: 20px;
 }
 
@@ -38,6 +38,17 @@
   line-height: 1.5;
 }
 
+.origin-stamp {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 11px;
+  border: 1px solid rgba(242,179,109,.42);
+  border-radius: 999px;
+  color: #ffd6a6;
+  font-size: 11px;
+  letter-spacing: .35px;
+}
+
 .login-form {
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.1);
@@ -61,7 +72,7 @@
 .login-form input:focus {
   background: rgba(255,255,255,.1);
   border-color: var(--clr-accent);
-  box-shadow: 0 0 0 3px rgba(201,168,76,.15);
+  box-shadow: 0 0 0 3px rgba(242,179,109,.15);
 }
 
 .input-pw-wrap {
