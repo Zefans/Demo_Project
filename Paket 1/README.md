@@ -1,127 +1,55 @@
-# PhotoFinance — Sistem Pengelolaan Keuangan Fotografi & Videografi
+# PhotoFinance — Paket A
 
-Aplikasi web pengelolaan keuangan khusus untuk bisnis fotografi dan videografi. Berjalan langsung di browser tanpa instalasi server.
+Aplikasi pencatatan pemasukan, pengeluaran, proyek, dan laporan keuangan untuk usaha foto/video. Data akun, transaksi, dan proyek disimpan di Cloudflare D1 sehingga dapat dibuka dari perangkat lain dengan akun yang sama.
 
----
+## Jalankan di Cloudflare Pages
 
-## Cara Menjalankan
+Fitur akun dan sinkronisasi online membutuhkan Cloudflare Pages Functions dan database D1. Membuka `index.html` langsung dari komputer atau memakai Live Server saja tidak menyediakan API online.
 
-### Metode 1 — Buka Langsung (Termudah)
-1. Buka folder project di File Explorer
-2. Double-click file **`index.html`**
-3. Browser akan membuka aplikasi secara otomatis
+1. Buat proyek Cloudflare Pages yang terhubung ke repository GitHub.
+2. Atur **Root directory** menjadi `Paket 1`, **Build command** kosong, dan **Build output directory** menjadi `.`.
+3. Buat database D1 melalui Cloudflare Dashboard.
+4. Jalankan isi file `schema.sql` pada SQL Console database D1 tersebut.
+5. Pada pengaturan Pages, buka **Settings → Functions → D1 database bindings**. Tambahkan binding dengan nama `DB` dan pilih database D1 tadi.
+6. Deploy ulang proyek Pages.
+7. Buka alamat Pages dan daftarkan akun bos terlebih dahulu. Pendaftar pertama yang tidak memakai kode undangan menjadi admin sekaligus membuat workspace.
+8. Admin buka **Pengaturan → Workspace Bersama**, lalu bagikan kode undangan kepada Anda.
+9. Daftarkan akun Anda dengan memasukkan kode undangan tersebut. Akun Anda akan bergabung sebagai user dan memakai data workspace yang sama.
 
-> **Catatan:** Beberapa browser (Chrome) memblokir pemuatan script lokal dengan `file://`. Gunakan Metode 2 jika ada masalah.
+Jangan mengirim atau menyimpan kata sandi di repository. Data dipisahkan per workspace; anggota pada workspace yang sama berbagi transaksi dan proyek. Kata sandi di-hash di server dan sesi disimpan dalam cookie `HttpOnly`.
 
-### Metode 2 — VS Code Live Server (Direkomendasikan)
-1. Install ekstensi **Live Server** di VS Code
-2. Buka folder project di VS Code
-3. Klik kanan `index.html` → **"Open with Live Server"**
-4. Browser akan membuka `http://127.0.0.1:5500`
+## Data lama
 
-### Metode 3 — Python HTTP Server
-```bash
-# Python 3
-python -m http.server 8080
+Saat login pertama kali dari browser yang sebelumnya memakai versi lokal, aplikasi menawarkan impor transaksi dan proyek lama ke akun online jika akun tersebut belum memiliki data. Pilih **OK** untuk mengimpor. Data lokal lama tidak otomatis tersedia di perangkat lain sebelum berhasil diimpor.
 
-# Buka browser: http://localhost:8080
-```
+## Sinkronisasi
 
-### Metode 4 — Node.js `serve`
-```bash
-npx serve .
-# Buka URL yang ditampilkan di terminal
-```
+Perubahan transaksi dan proyek dikirim ke server setelah jeda singkat. Aplikasi memeriksa perubahan dari perangkat lain berkala dan memperbarui tampilan ketika data baru ditemukan. Perangkat harus terhubung ke internet dan akun harus menjadi anggota workspace yang sama. Admin dan user memakai username/password masing-masing; tidak perlu berbagi akun. Hindari mengedit data yang sama secara bersamaan dari dua perangkat.
 
----
+Admin dapat mengganti kode undangan dari Pengaturan. Kode lama langsung tidak berlaku setelah diganti. Anggota yang sudah bergabung tetap dapat memakai workspace bersama.
 
-## Login Default
+## Fitur
 
-| Field    | Value       |
-|----------|-------------|
-| Username | `admin`     |
-| Password | `admin123`  |
+- Dashboard pemasukan, pengeluaran, saldo, serta proyek.
+- Tambah, edit, hapus, dan filter transaksi.
+- Manajemen proyek, DP, tagihan, dan riwayat pembayaran.
+- Laporan bulanan dan tahunan, grafik, serta ekspor CSV.
+- Workspace dengan peran admin dan user serta kode undangan.
 
----
+## Struktur
 
-## Fitur Aplikasi
-
-| Modul              | Fitur                                                                 |
-|--------------------|-----------------------------------------------------------------------|
-| **Dashboard**      | Ringkasan pemasukan, pengeluaran, saldo, proyek aktif; grafik 6 bulan |
-| **Transaksi**      | Tambah/edit/hapus pemasukan & pengeluaran; filter jenis & bulan       |
-| **Proyek**         | Manajemen proyek foto/video; DP, sisa tagihan, riwayat pembayaran     |
-| **Laporan**        | Grafik tren bulanan, rekap per tahun, breakdown kategori              |
-
----
-
-## Struktur File
-
-```
+```text
 Paket 1/
-├── index.html      # Entry point
+├── functions/api/auth.js       # Daftar, login, sesi, ganti password
+├── functions/api/data.js       # Muat dan sinkronkan data workspace
+├── functions/api/workspace.js  # Informasi workspace dan kode undangan
+├── functions/api/_shared.js    # Cookie, hash password, helper D1
+├── schema.sql                  # Tabel akun, sesi, dan data bisnis
+├── index.html
 ├── css/
-│   ├── style.css       # Global styles, layout, utilities
-│   ├── login.css       # Halaman login
-│   ├── dashboard.css   # Dashboard
-│   ├── transactions.css
-│   ├── projects.css
-│   └── reports.css
 └── js/
-    ├── storage.js      # localStorage wrapper
-    ├── auth.js         # Autentikasi admin
-    ├── utils.js        # Format, toast, modal helpers
-    ├── dashboard.js    # Dashboard renderer
-    ├── transactions.js # Manajemen transaksi
-    ├── projects.js     # Manajemen proyek
-    ├── reports.js      # Laporan & grafik
-    └── app.js          # Controller utama, routing, seed data
 ```
 
----
+## Batas pengaturan
 
-## Penyimpanan Data
-
-Semua data tersimpan di **localStorage** browser. Data tetap tersedia setelah browser ditutup atau halaman di-reload.
-
-> Data hanya tersimpan di browser yang digunakan. Untuk backup, gunakan fitur Export (dapat ditambahkan di versi berikutnya).
-
----
-
-## Reset Data Demo
-
-Untuk menghapus data demo dan mulai dari awal:
-1. Buka DevTools browser (F12)
-2. Masuk ke tab **Application → Local Storage**
-3. Klik kanan → **Clear** atau hapus semua key yang diawali `pf_`
-4. Reload halaman
-
----
-
-## Spesifikasi Teknis
-
-- **Frontend:** HTML5, CSS3 (CSS Variables, Grid, Flexbox), Vanilla JavaScript (ES6+)
-- **Chart:** Chart.js 4.4 (CDN)
-- **Storage:** Browser localStorage
-- **Autentikasi:** Session-based (localStorage)
-- **Kompatibilitas:** Chrome 80+, Firefox 75+, Edge 80+, Safari 13+
-- **Responsif:** Desktop, tablet, mobile
-
----
-
-## Paket A — Rp 1.500.000
-
-Estimasi pengerjaan: **7–10 hari kerja**
-
-Termasuk:
-- ✅ Semua fitur di atas
-- ✅ Data demo untuk testing
-- ✅ Desain responsif
-- ✅ Dokumentasi penggunaan
-
-Tidak termasuk:
-- ❌ Hosting & domain
-- ❌ Payment gateway / pembayaran online
-- ❌ Backend/database server
-- ❌ Multi-user / multi-device sync
-
+Source code sudah menyiapkan endpoint Pages Functions dan skema D1. Database D1 dan binding `DB` harus dibuat pada akun Cloudflare pemilik proyek sebelum penyimpanan online aktif. Setelah perubahan aplikasi di-deploy, akun baru perlu didaftarkan; akun demo `admin/admin123` sudah tidak tersedia.

@@ -1,117 +1,38 @@
-/**
- * auth.js — Multi-user authentication dengan isolasi data per akun
- * Setiap user memiliki namespace data tersendiri di localStorage.
- * Password disimpan sebagai btoa (obfuscation ringan, cukup untuk data browser-only).
- */
+/** Authentication uses HttpOnly server sessions; passwords never enter browser storage. */
 const Auth = (() => {
-  const KEY_SESSION = 'pf_session';
-  const KEY_USERS   = 'pf_users';
-
-  // ── Helpers ──────────────────────────────────────────────
-  function _getUsers() {
-    return Storage.get(KEY_USERS, []);
+  let session = null;
+  async function request(action, body) {
+    const response = await fetch('/api/auth', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...body })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'Layanan akun belum tersedia.');
+    session = result.session || null;
+    return result;
   }
-
-  function _saveUsers(users) {
-    Storage.set(KEY_USERS, users);
+  async function login(username, password) { return request('login', { username, password }); }
+  async function register(username, password, displayName, businessName, inviteCode) {
+    if (!username || username.trim().length < 3) return { ok: false, error: 'Username minimal 3 karakter.' };
+    if (!password || password.length < 8) return { ok: false, error: 'Password minimal 8 karakter.' };
+    if (!displayName || displayName.trim().length < 2) return { ok: false, error: 'Nama lengkap minimal 2 karakter.' };
+    return request('register', { username, password, displayName, businessName, inviteCode });
   }
-
-  function _initDefaultUser() {
-    if (_getUsers().length === 0) {
-      _saveUsers([{
-        id: 'u1',
-        username: 'admin',
-        passwordHash: btoa('admin123'),
-        displayName: 'Administrator',
-        businessName: 'Studio Foto Admin',
-        createdAt: Date.now()
-      }]);
-    }
+  async function changePassword(currentPassword, newPassword) {
+    if (!newPassword || newPassword.length < 8) return { ok: false, error: 'Password baru minimal 8 karakter.' };
+    try { return await request('change-password', { currentPassword, newPassword }); }
+    catch (error) { return { ok: false, error: error.message }; }
   }
-
-  // ── Namespace key untuk isolasi data per user ─────────────
-  // Semua data (transaksi, proyek) disimpan dengan prefix userId
-  function nsKey(key) {
-    const session = Storage.get(KEY_SESSION, null);
-    if (!session) return key;
-    return `${key}_${session.userId}`;
+  async function logout() { try { await request('logout', {}); } catch {} finally { session = null; Storage.stop(); } }
+  async function restore() {
+    const response = await fetch('/api/auth', { credentials: 'same-origin' });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'Layanan akun belum tersedia.');
+    session = response.ok ? result.session || null : null;
+    return session;
   }
-
-  // ── Auth API ─────────────────────────────────────────────
-  function login(username, password) {
-    _initDefaultUser();
-    const users = _getUsers();
-    const user  = users.find(u => u.username === username.trim().toLowerCase());
-    if (!user) return { ok: false, error: 'Username tidak ditemukan.' };
-    if (user.passwordHash !== btoa(password)) return { ok: false, error: 'Password salah.' };
-    const session = {
-      userId:       user.id,
-      username:     user.username,
-      displayName:  user.displayName,
-      businessName: user.businessName || '',
-      loginAt:      Date.now()
-    };
-    Storage.set(KEY_SESSION, session);
-    return { ok: true, session };
-  }
-
-  function register(username, password, displayName, businessName) {
-    _initDefaultUser();
-    // Validation
-    if (!username || username.trim().length < 3)
-      return { ok: false, error: 'Username minimal 3 karakter.' };
-    if (!password || password.length < 6)
-      return { ok: false, error: 'Password minimal 6 karakter.' };
-    if (!displayName || displayName.trim().length < 2)
-      return { ok: false, error: 'Nama lengkap minimal 2 karakter.' };
-
-    const users = _getUsers();
-    const uname = username.trim().toLowerCase();
-    if (users.find(u => u.username === uname))
-      return { ok: false, error: 'Username sudah digunakan.' };
-
-    const newUser = {
-      id:           'u' + Date.now().toString(36),
-      username:     uname,
-      passwordHash: btoa(password),
-      displayName:  displayName.trim(),
-      businessName: (businessName || '').trim(),
-      createdAt:    Date.now()
-    };
-    users.push(newUser);
-    _saveUsers(users);
-    return { ok: true };
-  }
-
-  function changePassword(currentPassword, newPassword) {
-    const session = getSession();
-    if (!session) return { ok: false, error: 'Belum login.' };
-    if (!newPassword || newPassword.length < 6)
-      return { ok: false, error: 'Password baru minimal 6 karakter.' };
-
-    const users = _getUsers();
-    const idx   = users.findIndex(u => u.id === session.userId);
-    if (idx === -1) return { ok: false, error: 'User tidak ditemukan.' };
-    if (users[idx].passwordHash !== btoa(currentPassword))
-      return { ok: false, error: 'Password lama salah.' };
-
-    users[idx].passwordHash = btoa(newPassword);
-    _saveUsers(users);
-    return { ok: true };
-  }
-
-  function logout() {
-    Storage.remove(KEY_SESSION);
-  }
-
-  function getSession() {
-    return Storage.get(KEY_SESSION, null);
-  }
-
-  function isLoggedIn() {
-    return !!getSession();
-  }
-
-  return { login, register, changePassword, logout, getSession, isLoggedIn, nsKey };
+  function getSession() { return session; }
+  function isLoggedIn() { return !!session; }
+  function nsKey(key) { return key; }
+  return { login, register, changePassword, logout, restore, getSession, isLoggedIn, nsKey };
 })();
-

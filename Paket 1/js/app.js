@@ -12,14 +12,21 @@ const App = (() => {
   };
 
   let _currentPage = 'dashboard';
+  const oldSession = Storage.get('pf_session', null);
+  const legacyData = oldSession ? {
+    transactions: Storage.get(`pf_transactions_${oldSession.userId}`, []),
+    projects: Storage.get(`pf_projects_${oldSession.userId}`, [])
+  } : { transactions: [], projects: [] };
 
   // ─── Boot ─────────────────────────────────────────────────
-  function init() {
-    if (Auth.isLoggedIn()) {
-      _seedDemoData();
-      _showApp();
-    } else {
-      _showLogin();
+  async function init() {
+    _showLogin();
+    try {
+      if (await Auth.restore()) await _showApp();
+    } catch (error) {
+      const err = document.getElementById('login-error');
+      err.textContent = error.message;
+      err.classList.add('show');
     }
 
     // Login form
@@ -30,8 +37,8 @@ const App = (() => {
     document.getElementById('register-form').addEventListener('submit', _handleRegister);
 
     // Logout
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      Auth.logout();
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await Auth.logout();
       _showLogin();
       Utils.toast('Berhasil keluar.', 'info');
     });
@@ -55,10 +62,18 @@ const App = (() => {
     document.getElementById('modal-overlay').addEventListener('click', e => {
       if (e.target === document.getElementById('modal-overlay')) Utils.closeModal();
     });
+
+    window.addEventListener('pf:data-updated', () => {
+      if (Auth.isLoggedIn() && document.getElementById('modal-overlay').classList.contains('hidden')) navigate(_currentPage);
+    });
+    setInterval(() => {
+      const modalOpen = !document.getElementById('modal-overlay').classList.contains('hidden');
+      if (Auth.isLoggedIn() && !modalOpen) Storage.refreshRemote().catch(console.error);
+    }, 5000);
   }
 
   // ─── Login / Logout ───────────────────────────────────────
-  function _handleLogin(e) {
+  async function _handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
@@ -71,25 +86,24 @@ const App = (() => {
     if (!username) { document.getElementById('err-username').textContent = 'Username wajib diisi.'; return; }
     if (!password) { document.getElementById('err-password').textContent = 'Password wajib diisi.'; return; }
 
-    const result = Auth.login(username, password);
-    if (result.ok) {
-      _seedDemoData();
-      _showApp();
-      Utils.toast(`Selamat datang, ${result.session.displayName}!`, 'success');
-    } else {
-      errEl.textContent = result.error;
+    try {
+      const result = await Auth.login(username, password);
+      if (await _showApp()) Utils.toast(`Selamat datang, ${result.session.displayName}!`, 'success');
+    } catch (error) {
+      errEl.textContent = error.message;
       errEl.classList.add('show');
     }
   }
 
   // ─── Register ─────────────────────────────────────────────
-  function _handleRegister(e) {
+  async function _handleRegister(e) {
     e.preventDefault();
     const username     = document.getElementById('reg-username').value.trim();
     const password     = document.getElementById('reg-password').value;
     const password2    = document.getElementById('reg-password2').value;
     const displayName  = document.getElementById('reg-name').value.trim();
     const businessName = document.getElementById('reg-business').value.trim();
+    const inviteCode   = document.getElementById('reg-invite-code').value.trim();
     const errEl        = document.getElementById('register-error');
 
     errEl.classList.remove('show');
@@ -102,14 +116,15 @@ const App = (() => {
       return;
     }
 
-    const result = Auth.register(username, password, displayName, businessName);
-    if (result.ok) {
+    try {
+      const result = await Auth.register(username, password, displayName, businessName, inviteCode);
+      if (!result.ok) throw new Error(result.error);
       errEl.classList.remove('show');
-      Utils.toast('Akun berhasil dibuat! Silakan login.', 'success');
+      Utils.toast(result.role === 'user' ? 'Akun dibuat dan bergabung ke workspace. Silakan login.' : 'Workspace berhasil dibuat. Silakan login sebagai admin.', 'success');
       _showLogin();
       document.getElementById('login-username').value = username;
-    } else {
-      errEl.textContent = result.error;
+    } catch (error) {
+      errEl.textContent = error.message;
       errEl.classList.add('show');
     }
   }
@@ -144,7 +159,20 @@ const App = (() => {
     document.getElementById('register-form').reset();
   }
 
-  function _showApp() {
+  async function _showApp() {
+    try {
+      const remote = await Storage.loadRemote();
+      if (!remote.hasData && (legacyData.transactions.length || legacyData.projects.length) && window.confirm('Data lama yang tersimpan di perangkat ini ditemukan. Impor data tersebut ke akun online?')) {
+        await Storage.importLocal(legacyData);
+        Utils.toast('Data lama berhasil disimpan ke akun online.', 'success');
+      }
+    } catch (error) {
+      _showLogin();
+      const err = document.getElementById('login-error');
+      err.textContent = error.message;
+      err.classList.add('show');
+      return false;
+    }
     document.getElementById('page-login').classList.remove('active');
     document.getElementById('page-register').classList.remove('active');
     document.getElementById('app-shell').classList.remove('hidden');
@@ -159,6 +187,7 @@ const App = (() => {
     }
 
     navigate(_currentPage);
+    return true;
   }
 
   // ─── Settings Page ────────────────────────────────────────
@@ -188,6 +217,25 @@ const App = (() => {
       </div>
     </div>
 
+    <div class="card" style="max-width:520px;margin-bottom:20px">
+      <div class="card-header"><h3>Workspace Bersama</h3></div>
+      <div class="card-body" style="padding-top:16px">
+        <p style="margin:0 0 8px"><strong>Workspace:</strong> <span id="workspace-name">Memuat…</span></p>
+        <p style="margin:0 0 12px"><strong>Peran Anda:</strong> <span id="workspace-role">${session?.role === 'admin' ? 'Admin' : 'User'}</span></p>
+        <div id="workspace-invite-panel" class="hidden">
+          <p style="margin:0 0 8px">Bagikan kode ini kepada user yang perlu bergabung:</p>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <code id="workspace-invite-code" style="font-size:18px;font-weight:800;letter-spacing:2px"></code>
+            <button type="button" class="btn-outline btn-sm" id="btn-copy-invite">Salin kode</button>
+            <button type="button" class="btn-outline btn-sm" id="btn-rotate-invite">Ganti kode</button>
+          </div>
+          <small>Kode lama tidak berlaku setelah diganti.</small>
+        </div>
+        <p id="workspace-user-help" class="hidden" style="margin:0">Minta kode undangan workspace kepada admin untuk mengajak anggota lain.</p>
+        <div id="workspace-error" class="form-error"></div>
+      </div>
+    </div>
+
     <div class="card" style="max-width:520px">
       <div class="card-header"><h3>Ubah Password</h3></div>
       <div class="card-body" style="padding-top:16px">
@@ -199,7 +247,7 @@ const App = (() => {
           </div>
           <div class="form-group">
             <label>Password Baru <span style="color:red">*</span></label>
-            <input type="password" id="cpw-new" placeholder="Minimal 6 karakter" />
+            <input type="password" id="cpw-new" placeholder="Minimal 8 karakter" />
           </div>
           <div class="form-group">
             <label>Konfirmasi Password Baru <span style="color:red">*</span></label>
@@ -212,7 +260,37 @@ const App = (() => {
       </div>
     </div>`;
 
-    document.getElementById('change-pw-form').addEventListener('submit', e => {
+    const workspaceError = document.getElementById('workspace-error');
+    fetch('/api/workspace', { credentials: 'same-origin' }).then(async response => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Gagal memuat workspace.');
+      document.getElementById('workspace-name').textContent = data.name;
+      document.getElementById('workspace-role').textContent = data.role === 'admin' ? 'Admin' : 'User';
+      if (data.role === 'admin') {
+        document.getElementById('workspace-invite-panel').classList.remove('hidden');
+        document.getElementById('workspace-invite-code').textContent = data.inviteCode;
+      } else {
+        document.getElementById('workspace-user-help').classList.remove('hidden');
+      }
+    }).catch(error => { workspaceError.textContent = error.message; workspaceError.classList.add('show'); });
+    document.getElementById('btn-copy-invite').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(document.getElementById('workspace-invite-code').textContent);
+        Utils.toast('Kode undangan disalin.', 'success');
+      } catch { Utils.toast('Kode tidak dapat disalin otomatis. Silakan salin kodenya.', 'info'); }
+    });
+    document.getElementById('btn-rotate-invite').addEventListener('click', async () => {
+      if (!window.confirm('Ganti kode undangan? Kode yang lama akan langsung tidak berlaku.')) return;
+      try {
+        const response = await fetch('/api/workspace', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Gagal mengganti kode.');
+        document.getElementById('workspace-invite-code').textContent = result.inviteCode;
+        Utils.toast('Kode undangan berhasil diganti.', 'success');
+      } catch (error) { workspaceError.textContent = error.message; workspaceError.classList.add('show'); }
+    });
+
+    document.getElementById('change-pw-form').addEventListener('submit', async e => {
       e.preventDefault();
       const old  = document.getElementById('cpw-old').value;
       const nw   = document.getElementById('cpw-new').value;
@@ -220,7 +298,7 @@ const App = (() => {
       const errEl = document.getElementById('cpw-err');
       errEl.textContent = '';
       if (nw !== nw2) { errEl.textContent = 'Password baru tidak cocok.'; return; }
-      const result = Auth.changePassword(old, nw);
+      const result = await Auth.changePassword(old, nw);
       if (result.ok) {
         Utils.toast('Password berhasil diubah.', 'success');
         document.getElementById('change-pw-form').reset();
