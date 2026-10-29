@@ -65,6 +65,7 @@ Edit file `.env`:
 
 ```env
 PORT=3000
+DATA_DIR=./data
 SESSION_SECRET=isi_dengan_string_acak_min_32_karakter
 
 # Midtrans Sandbox (lihat petunjuk di bawah)
@@ -275,6 +276,18 @@ knex('users').where('username','admin').update({password:hash}).then(()=>{consol
 - Sistem **tidak** mengklaim bisa mendeteksi semua transaksi rekening bank secara otomatis — hanya transaksi melalui invoice Midtrans yang terverifikasi otomatis
 
 ---
+
+## Deploy ke Render
+
+Repository ini memiliki file `render.yaml` di root repo untuk menyiapkan Paket 2 sebagai web service.
+
+1. Buat Blueprint baru di Render dan hubungkan repository `Zefans/Demo_Project`.
+2. Periksa konfigurasi service: root directory `Paket 2`, build command `npm ci`, start command `npm start`.
+3. Blueprint memakai persistent disk 1 GB di `/var/data` untuk database SQLite dan sesi login. Layanan dengan persistent disk memerlukan paket berbayar; cek harga Render sebelum membuat service.
+4. Isi `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`, `MIDTRANS_SERVER_KEY`, dan `MIDTRANS_CLIENT_KEY` melalui dashboard Render. `SESSION_SECRET` dibuat oleh Render. Jangan simpan nilai rahasia di GitHub.
+5. Setelah service live, atur URL notifikasi Midtrans ke `https://<alamat-service>.onrender.com/api/invoices/webhook`.
+
+Untuk pengujian, `MIDTRANS_IS_PRODUCTION` disetel ke `false` agar memakai mode sandbox.
 
 ## 📞 Support & Informasi Paket
 

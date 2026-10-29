@@ -2,12 +2,24 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 
 // Initialise DB (runs schema + seed)
 const db = require('./db');
 
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
+const sessionSecret = process.env.SESSION_SECRET || (isProduction ? '' : 'dev-secret-change-me');
+const dataDir = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, '../data');
+
+if (!sessionSecret) {
+  throw new Error('SESSION_SECRET is required in production.');
+}
+fs.mkdirSync(dataDir, { recursive: true });
+if (isProduction) app.set('trust proxy', 1);
 
 // ── Middleware ───────────────────────────────────────────────────────────────
 app.use(express.json());
@@ -16,14 +28,15 @@ app.use(cors({ origin: true, credentials: true }));
 
 const SQLiteStore = require('connect-sqlite3')(session);
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
-  store: new SQLiteStore({ db: 'sessions.db', dir: path.join(__dirname, '../data') }),
+  store: new SQLiteStore({ db: 'sessions.db', dir: dataDir }),
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
     sameSite: 'lax',
+    secure: isProduction,
   },
 }));
 

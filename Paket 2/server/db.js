@@ -3,7 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
-const dataDir = path.join(__dirname, '../data');
+const dataDir = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, '../data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 const knex = require('knex')({
@@ -130,16 +132,22 @@ const db = {
     }
 
     // Seed admin
-    const admin = await knex('users').where('username', process.env.ADMIN_USERNAME || 'admin').first();
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD || (process.env.NODE_ENV === 'production' ? '' : 'admin123');
+    const adminEmail = process.env.ADMIN_EMAIL || 'demo@example.invalid';
+    const admin = await knex('users').where('username', adminUsername).first();
     if (!admin) {
-      const hash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
+      if (!adminPassword) {
+        throw new Error('Set ADMIN_PASSWORD before starting the production server for the first time.');
+      }
+      const hash = bcrypt.hashSync(adminPassword, 10);
       await knex('users').insert({
-        username: process.env.ADMIN_USERNAME || 'admin',
+        username: adminUsername,
         password: hash,
-        email:    process.env.ADMIN_EMAIL || 'demo@example.invalid',
+        email:    adminEmail,
         role:     'admin',
       });
-      console.log('✅  Default admin created:', process.env.ADMIN_USERNAME || 'admin');
+      console.log('✅  Admin account created:', adminUsername);
     }
 
     // Seed expense categories
