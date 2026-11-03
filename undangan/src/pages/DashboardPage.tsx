@@ -189,6 +189,12 @@ export default function DashboardPage() {
                     {/* Action buttons */}
                     <div className="flex gap-2 flex-wrap">
                       <Link
+                        to={`/dashboard/preview/${inv.id}`}
+                        className="flex-1 text-center text-xs py-1.5 rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 transition"
+                      >
+                        👁️ Preview
+                      </Link>
+                      <Link
                         to={`/dashboard/editor/${inv.id}`}
                         className="flex-1 text-center text-xs py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
                       >

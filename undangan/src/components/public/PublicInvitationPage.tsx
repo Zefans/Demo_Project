@@ -43,7 +43,8 @@ export default function PublicInvitationPage() {
     );
   }
 
-  if (opening) {
+  // Olive & Linen has its own full-screen personalized cover, so skip the generic intro gate.
+  if (opening && invitation.templateId !== 'olive-linen') {
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center text-center p-8 font-body"

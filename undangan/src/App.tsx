@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import PricingPage from './pages/PricingPage';
 import InvitationBuilder from './components/editor/InvitationBuilder';
 import PublicInvitationPage from './components/public/PublicInvitationPage';
+import DashboardInvitationPreview from './pages/DashboardInvitationPreview';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
 
           {/* Dashboard — auth enforced inside each page */}
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/preview/:id" element={<DashboardInvitationPreview />} />
           <Route path="/dashboard/editor/:id" element={<InvitationBuilder />} />
         </Routes>
       </AuthProvider>

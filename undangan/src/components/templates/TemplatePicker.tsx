@@ -57,6 +57,18 @@ const PREVIEW_CONTENT: Record<TemplateId, { icon: string; sample: React.ReactNod
       </div>
     ),
   },
+  'olive-linen': {
+    icon: '❧',
+    sample: (
+      <div className="h-full flex flex-col items-center justify-center p-4 text-center" style={{ color: '#fff', background: 'linear-gradient(160deg, #777b70, #343c35)' }}>
+        <span className="text-[10px] tracking-[0.24em] uppercase mb-3">The Wedding Of</span>
+        <p className="font-handwrite text-2xl leading-tight">Mempelai Pria</p>
+        <span className="font-display text-sm my-1" style={{ color: '#e0cfb9' }}>&amp;</span>
+        <p className="font-handwrite text-2xl leading-tight">Mempelai Wanita</p>
+        <span className="mt-4 rounded px-3 py-1 text-[9px] tracking-widest uppercase" style={{ background: '#aa9278' }}>Buka Undangan</span>
+      </div>
+    ),
+  },
 };
 
 export default function TemplatePicker({ selected, onSelect }: Props) {

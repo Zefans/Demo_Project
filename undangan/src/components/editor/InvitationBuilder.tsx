@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DEFAULT_INVITATION } from '../../types/invitation';
-import type { InvitationData, TemplateId, EventInfo, StoryEntry, BankAccount } from '../../types/invitation';
+import type { InvitationData, TemplateId, EventInfo, StoryEntry, ScheduleEntry, BankAccount } from '../../types/invitation';
 import { saveDraft, loadDraft } from '../../services/storage';
 import { saveInvitation, getUserInvitations } from '../../services/invitationService';
 import { useAuth } from '../../context/AuthContext';
@@ -35,8 +35,10 @@ export default function InvitationBuilder() {
   const [activeSection, setActiveSection] = React.useState<Section>('template');
   const [saveMsg, setSaveMsg] = React.useState('');
   const [showPreview, setShowPreview] = React.useState(false);
+  const [galleryUrl, setGalleryUrl] = React.useState('');
+  const [galleryAlt, setGalleryAlt] = React.useState('');
 
-  type Section = 'template' | 'couple' | 'event' | 'story' | 'text' | 'bank';
+  type Section = 'template' | 'couple' | 'event' | 'story' | 'schedule' | 'media' | 'text' | 'bank';
 
   function update(patch: Partial<InvitationData>) {
     setData(prev => ({ ...prev, ...patch, updatedAt: new Date().toISOString() }));
@@ -99,6 +101,34 @@ export default function InvitationBuilder() {
     update({ story: data.story.filter((_, idx) => idx !== i) });
   }
 
+  function updateSchedule(i: number, patch: Partial<ScheduleEntry>) {
+    const schedule = data.schedule ?? [];
+    update({ schedule: schedule.map((item, idx) => idx === i ? { ...item, ...patch } : item) });
+  }
+
+  function addScheduleItem() {
+    update({ schedule: [...(data.schedule ?? []), { time: '', title: '', description: '' }] });
+  }
+
+  function removeScheduleItem(i: number) {
+    update({ schedule: (data.schedule ?? []).filter((_, idx) => idx !== i) });
+  }
+
+  function addGalleryPhoto() {
+    const url = galleryUrl.trim();
+    if (!url) return;
+    try {
+      const parsed = new URL(url);
+      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('URL harus menggunakan HTTP atau HTTPS.');
+    } catch {
+      alert('Masukkan URL foto yang valid (https://...).');
+      return;
+    }
+    update({ gallery: [...data.gallery, { id: `photo-${Date.now()}`, url, alt: galleryAlt.trim() || 'Foto pasangan' }] });
+    setGalleryUrl('');
+    setGalleryAlt('');
+  }
+
   function updateBank(i: number, patch: Partial<BankAccount>) {
     update({ bankAccounts: data.bankAccounts.map((b, idx) => (idx === i ? { ...b, ...patch } : b)) });
   }
@@ -120,6 +150,8 @@ export default function InvitationBuilder() {
     { id: 'couple', label: 'Pasangan', icon: '💑' },
     { id: 'event', label: 'Acara', icon: '🗓️' },
     { id: 'story', label: 'Cerita', icon: '💕' },
+    { id: 'schedule', label: 'Susunan Acara', icon: '🕰️' },
+    { id: 'media', label: 'Media', icon: '🎞️' },
     { id: 'text', label: 'Teks', icon: '✍️' },
     { id: 'bank', label: 'Rekening', icon: '💳' },
   ];
@@ -333,9 +365,75 @@ export default function InvitationBuilder() {
               </div>
             )}
 
+            {activeSection === 'schedule' && (
+              <div className="space-y-4">
+                <p className="text-sm font-semibold text-gray-800">Timeline Susunan Acara</p>
+                {(data.schedule ?? []).map((item, i) => (
+                  <div key={i} className="rounded-2xl border border-gray-200 p-4 space-y-3 bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Agenda {i + 1}</p>
+                      <button type="button" onClick={() => removeScheduleItem(i)} className="text-xs text-red-400 hover:text-red-600">Hapus</button>
+                    </div>
+                    <div>
+                      <label className={label}>Waktu</label>
+                      <input className={input} value={item.time} onChange={e => updateSchedule(i, { time: e.target.value })} placeholder="08.00 WIB" maxLength={30} />
+                    </div>
+                    <div>
+                      <label className={label}>Nama Acara</label>
+                      <input className={input} value={item.title} onChange={e => updateSchedule(i, { title: e.target.value })} placeholder="Kedatangan tamu" maxLength={80} />
+                    </div>
+                    <div>
+                      <label className={label}>Keterangan</label>
+                      <textarea className={input} rows={2} value={item.description} onChange={e => updateSchedule(i, { description: e.target.value })} maxLength={240} />
+                    </div>
+                  </div>
+                ))}
+                <button type="button" onClick={addScheduleItem} className="w-full py-2.5 rounded-xl border border-dashed border-violet-300 text-violet-600 text-sm font-medium hover:bg-violet-50 transition">+ Tambah Agenda</button>
+              </div>
+            )}
+
+            {activeSection === 'media' && (
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-gray-800">Galeri Foto</p>
+                  <p className="text-xs text-gray-500">Tambahkan tautan foto publik yang dapat dibuka oleh tamu.</p>
+                  {data.gallery.map((photo, i) => (
+                    <div key={photo.id} className="flex items-center gap-3 rounded-xl border border-gray-200 p-2">
+                      <img src={photo.url} alt={photo.alt} className="h-14 w-14 rounded-lg object-cover bg-gray-100" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium">{photo.alt}</p>
+                        <p className="truncate text-[10px] text-gray-400">{photo.url}</p>
+                      </div>
+                      <button type="button" onClick={() => update({ gallery: data.gallery.filter((_, idx) => idx !== i) })} className="px-2 text-xs text-red-500">Hapus</button>
+                    </div>
+                  ))}
+                  <label className={label}>URL Foto</label>
+                  <input className={input} type="url" value={galleryUrl} onChange={e => setGalleryUrl(e.target.value)} placeholder="https://.../foto.jpg" />
+                  <label className={label}>Keterangan Foto</label>
+                  <input className={input} value={galleryAlt} onChange={e => setGalleryAlt(e.target.value)} placeholder="Contoh: Sesi prewedding" maxLength={120} />
+                  <button type="button" onClick={addGalleryPhoto} className="w-full rounded-xl border border-dashed border-violet-300 py-2.5 text-sm font-medium text-violet-600 hover:bg-violet-50">+ Tambah Foto</button>
+                </div>
+                <div className="space-y-2 border-t border-gray-100 pt-4">
+                  <p className="text-sm font-semibold text-gray-800">Video</p>
+                  <label className={label}>URL Video YouTube (opsional)</label>
+                  <input className={input} type="url" value={data.videoUrl ?? ''} onChange={e => update({ videoUrl: e.target.value })} placeholder="https://www.youtube.com/watch?v=..." />
+                </div>
+                <div className="space-y-2 border-t border-gray-100 pt-4">
+                  <p className="text-sm font-semibold text-gray-800">Musik Latar</p>
+                  <label className={label}>URL file musik langsung (MP3, OGG, WAV)</label>
+                  <input className={input} type="url" value={data.musicUrl ?? ''} onChange={e => update({ musicUrl: e.target.value })} placeholder="https://.../musik.mp3" />
+                  <p className="text-xs text-gray-400">Tempel URL file audio publik. Ganti atau kosongkan URL ini kapan saja untuk mengubah musik. Tombol musik tersedia di semua template dan audio hanya diputar setelah ditekan.</p>
+                </div>
+              </div>
+            )}
+
             {activeSection === 'text' && (
               <div className="space-y-4">
                 <p className="text-sm font-semibold text-gray-800">Teks Undangan</p>
+                <div>
+                  <label className={label}>Kutipan / Doa</label>
+                  <textarea className={input} rows={3} value={data.quoteText ?? ''} onChange={e => update({ quoteText: e.target.value })} placeholder="Tuliskan kutipan atau doa untuk pasangan" maxLength={500} />
+                </div>
                 <div>
                   <label className={label}>Teks Pembuka</label>
                   <textarea className={input} rows={5} value={data.openingText} onChange={e => update({ openingText: e.target.value })} maxLength={600} />

@@ -1,7 +1,7 @@
 // ─── Core Invitation Data Model ──────────────────────────────────────────────
 // All templates consume this shape. Editor mutates this. Templates only display.
 
-export type TemplateId = 'playful-garden' | 'retro-love' | 'modern-editorial';
+export type TemplateId = 'playful-garden' | 'retro-love' | 'modern-editorial' | 'olive-linen';
 
 export interface CoupleInfo {
   groomName: string;
@@ -31,6 +31,12 @@ export interface StoryEntry {
   description: string;
 }
 
+export interface ScheduleEntry {
+  time: string;
+  title: string;
+  description: string;
+}
+
 export interface GalleryPhoto {
   id: string;
   url: string; // data URL or remote URL
@@ -49,8 +55,12 @@ export interface InvitationData {
   couple: CoupleInfo;
   openingText: string;
   closingText: string;
+  quoteText?: string;
+  videoUrl?: string;
+  musicUrl?: string;
   events: EventInfo[];
   story: StoryEntry[];
+  schedule?: ScheduleEntry[];
   gallery: GalleryPhoto[];
   bankAccounts: BankAccount[];
   coverPhotoUrl?: string;
@@ -113,6 +123,9 @@ export const DEFAULT_INVITATION: InvitationData = {
   },
   openingText: 'Dengan penuh sukacita, kami mengundang Anda untuk menghadiri acara istimewa kami.',
   closingText: 'Terima kasih atas doa dan kehadiran Anda.',
+  quoteText: 'Semoga langkah baru ini selalu dipenuhi kasih, ketulusan, dan kebahagiaan.',
+  videoUrl: '',
+  musicUrl: '',
   events: [
     {
       title: 'Akad Nikah',
@@ -142,6 +155,12 @@ export const DEFAULT_INVITATION: InvitationData = {
     { year: '2022', title: 'Momen Berkesan', description: 'Tambahkan momen berkesan di sini.' },
     { year: '2024', title: 'Hari Bahagia', description: 'Ceritakan rencana hari bahagia di sini.' },
     { year: '2026', title: 'Bab Baru', description: 'Tulis harapan untuk bab baru di sini.' },
+  ],
+  schedule: [
+    { time: '08.00', title: 'Kedatangan Tamu', description: 'Menyambut keluarga dan para tamu undangan.' },
+    { time: '09.00', title: 'Akad Nikah', description: 'Prosesi akad dan doa bersama.' },
+    { time: '11.00', title: 'Resepsi', description: 'Ucapan selamat dan ramah tamah.' },
+    { time: '13.00', title: 'Penutup', description: 'Terima kasih atas kehadiran dan doa.' },
   ],
   gallery: [],
   bankAccounts: [
@@ -215,6 +234,25 @@ export const TEMPLATE_THEMES: Record<TemplateId, TemplateTheme> = {
     decorations: ['—', '·', '/', '×'],
     layout: 'asymmetric',
     animationStyle: 'minimal',
+  },
+  'olive-linen': {
+    id: 'olive-linen',
+    name: 'Olive & Linen',
+    description: 'Palet zaitun dan krem, bingkai tipis, serta tipografi serif yang tenang dan elegan.',
+    previewBg: 'linear-gradient(135deg, #f7f4ec 0%, #e6e5d8 52%, #39483b 100%)',
+    fonts: { heading: 'Playfair Display', body: 'Inter', accent: 'Dancing Script' },
+    colors: {
+      primary: '#39483b',
+      secondary: '#a77b51',
+      background: '#f7f4ec',
+      surface: '#fffdf8',
+      text: '#30352e',
+      muted: '#77796e',
+      border: '#d9d7c8',
+    },
+    decorations: ['✦', '❧', '—'],
+    layout: 'centered',
+    animationStyle: 'gentle',
   },
 };
 
