@@ -1,0 +1,93 @@
+html.invitation-page-mode {
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+.invitation-pages [data-invitation-page="true"] {
+  min-height: 100svh;
+  scroll-snap-align: start;
+  scroll-margin-top: 0;
+  padding-bottom: max(7rem, calc(env(safe-area-inset-bottom) + 6rem));
+}
+
+.invitation-page-nav {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  transform: translateX(-50%);
+  padding: .55rem .7rem;
+  border: 1px solid rgb(255 255 255 / 65%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 8px 28px rgb(20 30 30 / 16%);
+  color: #243432;
+  backdrop-filter: blur(14px);
+}
+
+.invitation-page-arrow {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #123b3a;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.invitation-page-arrow:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.invitation-page-arrow:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.invitation-page-status {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  min-width: 3.5rem;
+  justify-content: center;
+  font: 600 .75rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .04em;
+}
+
+.invitation-page-divider {
+  opacity: .4;
+}
+
+.invitation-page-label {
+  max-width: 8rem;
+  margin-left: .2rem;
+  overflow: hidden;
+  color: #5d706c;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 .72rem/1.2 Inter, sans-serif;
+}
+
+@media (max-width: 640px) {
+  .invitation-pages [data-invitation-page="true"] {
+    padding-bottom: max(6.5rem, calc(env(safe-area-inset-bottom) + 5.5rem));
+  }
+
+  .invitation-page-nav {
+    gap: .55rem;
+    padding: .45rem .55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.invitation-page-mode {
+    scroll-behavior: auto;
+  }
+}

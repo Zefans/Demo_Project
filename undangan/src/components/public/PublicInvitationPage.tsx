@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { getPublicInvitation } from '../../services/invitationService';
 import { DEFAULT_INVITATION } from '../../types/invitation';
 import TemplateRenderer from '../templates/TemplateRenderer';
+import InvitationPages from './InvitationPages';
 
 // Sanitize raw URL param text — prevent XSS
 function sanitizeText(raw: string): string {
@@ -75,6 +76,10 @@ export default function PublicInvitationPage() {
     );
   }
 
-  return <TemplateRenderer data={invitation} guestName={guestName} isPreview={false} />;
+  return (
+    <InvitationPages>
+      <TemplateRenderer data={invitation} guestName={guestName} isPreview={false} />
+    </InvitationPages>
+  );
 }
 
